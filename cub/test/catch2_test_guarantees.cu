@@ -84,8 +84,8 @@ class reduce
   // Example of exhaustive dispatch
   template <class IteratorT>
   static reduce_backend_detector_t
-  sum(IteratorT begin,
-      IteratorT end,
+  sum(IteratorT,
+      IteratorT,
       cub::detail::guarantees::run_to_run_deterministic_t,
       detail::max_memory_footprint_t max_footprint)
   {
@@ -98,8 +98,8 @@ class reduce
 
   template <class IteratorT>
   static reduce_backend_detector_t
-  sum(IteratorT begin,
-      IteratorT end,
+  sum(IteratorT,
+      IteratorT,
       cub::detail::guarantees::determinism_not_guaranteed_t,
       detail::max_memory_footprint_t max_footprint)
   {
@@ -245,7 +245,7 @@ class scan
   static typename ::cuda::std::enable_if<
     cub::detail::guarantees::statically_satisfy_t<weak_guarantees_t, ReguirementsT>::value,
     scan_backend_detector_t>::type
-  sum_impl(IteratorT begin, IteratorT end, ReguirementsT requirements)
+  sum_impl(IteratorT, IteratorT, ReguirementsT)
   {
     return scan_backend_detector_t::weak;
   }
@@ -255,7 +255,7 @@ class scan
     !cub::detail::guarantees::statically_satisfy_t<weak_guarantees_t, ReguirementsT>::value
       && cub::detail::guarantees::statically_satisfy_t<strong_guarantees_t, ReguirementsT>::value,
     scan_backend_detector_t>::type
-  sum_impl(IteratorT begin, IteratorT end, ReguirementsT requirements)
+  sum_impl(IteratorT, IteratorT, ReguirementsT)
   {
     return scan_backend_detector_t::strong;
   }
