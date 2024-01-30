@@ -835,8 +835,8 @@ This is achieved as follows:
         cub::detail::guarantees::guarantees_t<cub::detail::guarantees::determinism_not_guaranteed_t,
                                               detail::max_memory_footprint_t>;
 
-      template <class IteratorT, class ReguirementsT = default_guarantees_t>
-      static auto sum(IteratorT begin, IteratorT end, ReguirementsT requirements = default_guarantees_t())                  // (2)
+      template <class IteratorT, class RequirementsT = default_guarantees_t>
+      static auto sum(IteratorT begin, IteratorT end, RequirementsT requirements = default_guarantees_t())                  // (2)
       {
         auto guarantees    = cub::detail::requirements::mask(default_guarantees_t(), requirements);                         // (3)
         auto max_footprint = cub::detail::requirements::get<detail::max_memory_footprint_t>(guarantees);                    // (4)
@@ -872,21 +872,21 @@ it's possible to order implementation by strength.
 
       using default_guarantees_t = weak_guarantees_t;
 
-      template <class IteratorT, class ReguirementsT>
+      template <class IteratorT, class RequirementsT>
       static typename ::cuda::std::enable_if<
-        cub::detail::guarantees::statically_satisfy_t<weak_guarantees_t, ReguirementsT>::value,             // (1)
+        cub::detail::guarantees::statically_satisfy_t<weak_guarantees_t, RequirementsT>::value,             // (1)
         scan_backend_detector_t>::type
-      sum_impl(IteratorT begin, IteratorT end, ReguirementsT requirements)
+      sum_impl(IteratorT begin, IteratorT end, RequirementsT requirements)
       {
         return scan_backend_detector_t::weak;
       }
 
-      template <class IteratorT, class ReguirementsT>
+      template <class IteratorT, class RequirementsT>
       static typename ::cuda::std::enable_if<
-        !cub::detail::guarantees::statically_satisfy_t<weak_guarantees_t, ReguirementsT>::value             // (2)
-          && cub::detail::guarantees::statically_satisfy_t<strong_guarantees_t, ReguirementsT>::value,
+        !cub::detail::guarantees::statically_satisfy_t<weak_guarantees_t, RequirementsT>::value             // (2)
+          && cub::detail::guarantees::statically_satisfy_t<strong_guarantees_t, RequirementsT>::value,
         scan_backend_detector_t>::type
-      sum_impl(IteratorT begin, IteratorT end, ReguirementsT requirements)
+      sum_impl(IteratorT begin, IteratorT end, RequirementsT requirements)
       {
         return scan_backend_detector_t::strong;
       }
@@ -898,8 +898,8 @@ it's possible to order implementation by strength.
         return detail::preserve_partials_in_t<T>{d_ptr};
       }
 
-      template <class IteratorT, class ReguirementsT = default_guarantees_t>
-      scan_backend_detector_t sum(IteratorT begin, IteratorT end, ReguirementsT requirements = default_guarantees_t())
+      template <class IteratorT, class RequirementsT = default_guarantees_t>
+      scan_backend_detector_t sum(IteratorT begin, IteratorT end, RequirementsT requirements = default_guarantees_t())
       {
         return sum_impl(begin, end, cub::detail::requirements::mask(default_guarantees_t(), requirements)); // (3)
       }

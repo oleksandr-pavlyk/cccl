@@ -118,9 +118,9 @@ public:
     cub::detail::guarantees::guarantees_t<cub::detail::guarantees::determinism_not_guaranteed_t,
                                           detail::max_memory_footprint_t>;
 
-  template <class IteratorT, class ReguirementsT = default_guarantees_t>
+  template <class IteratorT, class RequirementsT = default_guarantees_t>
   static reduce_backend_detector_t
-  sum(IteratorT begin, IteratorT end, ReguirementsT requirements = default_guarantees_t())
+  sum(IteratorT begin, IteratorT end, RequirementsT requirements = default_guarantees_t())
   {
     auto guarantees    = cub::detail::requirements::mask(default_guarantees_t(), requirements);
     auto max_footprint = cub::detail::requirements::get<detail::max_memory_footprint_t>(guarantees);
@@ -241,21 +241,21 @@ class scan
 
   using default_guarantees_t = weak_guarantees_t;
 
-  template <class IteratorT, class ReguirementsT>
+  template <class IteratorT, class RequirementsT>
   static typename ::cuda::std::enable_if<
-    cub::detail::guarantees::statically_satisfy<weak_guarantees_t, ReguirementsT>::value,
+    cub::detail::guarantees::statically_satisfy<weak_guarantees_t, RequirementsT>::value,
     scan_backend_detector_t>::type
-  sum_impl(IteratorT, IteratorT, ReguirementsT)
+  sum_impl(IteratorT, IteratorT, RequirementsT)
   {
     return scan_backend_detector_t::weak;
   }
 
-  template <class IteratorT, class ReguirementsT>
+  template <class IteratorT, class RequirementsT>
   static typename ::cuda::std::enable_if<
-    !cub::detail::guarantees::statically_satisfy<weak_guarantees_t, ReguirementsT>::value
-      && cub::detail::guarantees::statically_satisfy<strong_guarantees_t, ReguirementsT>::value,
+    !cub::detail::guarantees::statically_satisfy<weak_guarantees_t, RequirementsT>::value
+      && cub::detail::guarantees::statically_satisfy<strong_guarantees_t, RequirementsT>::value,
     scan_backend_detector_t>::type
-  sum_impl(IteratorT, IteratorT, ReguirementsT)
+  sum_impl(IteratorT, IteratorT, RequirementsT)
   {
     return scan_backend_detector_t::strong;
   }
@@ -267,8 +267,8 @@ public:
     return detail::preserve_partials_in_t<T>{d_ptr};
   }
 
-  template <class IteratorT, class ReguirementsT = default_guarantees_t>
-  scan_backend_detector_t sum(IteratorT begin, IteratorT end, ReguirementsT requirements = default_guarantees_t())
+  template <class IteratorT, class RequirementsT = default_guarantees_t>
+  scan_backend_detector_t sum(IteratorT begin, IteratorT end, RequirementsT requirements = default_guarantees_t())
   {
     return sum_impl(begin, end, cub::detail::requirements::mask(default_guarantees_t(), requirements));
   }
