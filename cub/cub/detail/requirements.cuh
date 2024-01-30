@@ -173,11 +173,13 @@ auto mask(const ::cuda::std::tuple<GuaranteesTs...>& guarantees,
           const ::cuda::std::tuple<RequirementsTs...>& requirements)
   -> decltype(::cuda::std::make_tuple(masked_value<GuaranteesTs>(guarantees, requirements)...))
 {
-  static_assert(list_of_requirements_from_unique_categories<GuaranteesTs...>::value, "Guarantees must be unique");
-  static_assert(list_of_requirements_from_unique_categories<RequirementsTs...>::value, "Requirements must be unique");
+  static_assert(list_of_requirements_from_unique_categories<GuaranteesTs...>::value,
+                "Guarantees must be from unique categories");
+  static_assert(list_of_requirements_from_unique_categories<RequirementsTs...>::value,
+                "Requirements must be from unique categories");
   static_assert(requirements_categorically_match_guarantees<::cuda::std::tuple<GuaranteesTs...>,
                                                             ::cuda::std::tuple<RequirementsTs...>>::value,
-                "Requirements do not match guarantees");
+                "Requested requirements are not supported by this algorithm");
   // static_assert(!contains_unknown_requirements<std::tuple<Ss...>, std::tuple<GuaranteesTs...>>::value,
   //               "Unknown requirements");
   return ::cuda::std::make_tuple(masked_value<GuaranteesTs>(guarantees, requirements)...);

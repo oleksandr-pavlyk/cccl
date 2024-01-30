@@ -785,9 +785,6 @@ Examples of the requirements API:
    // default determinism guarantees, memory footprint limit
    reduce::sum(begin, end, cub::require(cub::max_memory_footprint(128_KB)));
 
-   // default determinism guarantees, memory footprint limit
-   reduce::sum(begin, end, cub::require(cub::max_memory_footprint(128_KB)));
-
    // run-to-run deterministic with memory footprint limit
    reduce::sum(begin, end, cub::require(cub::run_to_run_determinism, 
                                         cub::max_memory_footprint(128_KB)));
