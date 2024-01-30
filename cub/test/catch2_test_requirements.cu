@@ -43,79 +43,79 @@ constexpr bool operator<(C, T) { return false; }
 
 constexpr bool operator<(D, D) { return false; }
 
-TEST_CASE("requirement_t works", "[requirements][meta]")
+TEST_CASE("requirement works", "[requirements][meta]")
 {
-  STATIC_REQUIRE(cub::detail::requirements::requirement_t<A>::value == true);
-  STATIC_REQUIRE(cub::detail::requirements::requirement_t<B>::value == false);
+  STATIC_REQUIRE(cub::detail::requirements::requirement<A>::value == true);
+  STATIC_REQUIRE(cub::detail::requirements::requirement<B>::value == false);
 }
 
-TEST_CASE("list_of_requirement_t works", "[requirements][meta]")
+TEST_CASE("list_of_requirement works", "[requirements][meta]")
 {
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_t<A>::value == true);
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_t<B>::value == false);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements<A>::value == true);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements<B>::value == false);
 
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_t<A, A, A>::value == true);
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_t<B, A, A>::value == false);
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_t<A, B, A>::value == false);
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_t<A, A, B>::value == false);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements<A, A, A>::value == true);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements<B, A, A>::value == false);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements<A, B, A>::value == false);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements<A, A, B>::value == false);
 }
 
-TEST_CASE("list_of_requirements_from_unique_categories_t works", "[requirements][meta]")
+TEST_CASE("list_of_requirements_from_unique_categories works", "[requirements][meta]")
 {
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories_t<>::value == true);
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories_t<A>::value == true);
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories_t<C>::value == true);
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories_t<A, C>::value == false);
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories_t<A, D>::value == true);
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories_t<D, C>::value == true);
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories_t<D, D>::value == false);
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories_t<A, D, C>::value == false);
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories_t<A, C, D>::value == false);
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories_t<C, A, D>::value == false);
-  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories_t<C, D, A>::value == false);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories<>::value == true);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories<A>::value == true);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories<C>::value == true);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories<A, C>::value == false);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories<A, D>::value == true);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories<D, C>::value == true);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories<D, D>::value == false);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories<A, D, C>::value == false);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories<A, C, D>::value == false);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories<C, A, D>::value == false);
+  STATIC_REQUIRE(cub::detail::requirements::list_of_requirements_from_unique_categories<C, D, A>::value == false);
 }
 
-TEST_CASE("first_categorial_match_id_t works", "[requirements][meta]")
+TEST_CASE("first_categorial_match_id works", "[requirements][meta]")
 {
-  STATIC_REQUIRE(cub::detail::requirements::first_categorial_match_id_t<A>::value == 0);
-  STATIC_REQUIRE(cub::detail::requirements::first_categorial_match_id_t<A, A>::value == 0);
-  STATIC_REQUIRE(cub::detail::requirements::first_categorial_match_id_t<A, C>::value == 0);
-  STATIC_REQUIRE(cub::detail::requirements::first_categorial_match_id_t<A, C, D>::value == 0);
-  STATIC_REQUIRE(cub::detail::requirements::first_categorial_match_id_t<A, D, C>::value == 1);
+  STATIC_REQUIRE(cub::detail::requirements::first_categorial_match_id<A>::value == 0);
+  STATIC_REQUIRE(cub::detail::requirements::first_categorial_match_id<A, A>::value == 0);
+  STATIC_REQUIRE(cub::detail::requirements::first_categorial_match_id<A, C>::value == 0);
+  STATIC_REQUIRE(cub::detail::requirements::first_categorial_match_id<A, C, D>::value == 0);
+  STATIC_REQUIRE(cub::detail::requirements::first_categorial_match_id<A, D, C>::value == 1);
 }
 
-TEST_CASE("first_categorial_match_t works", "[requirements][meta]")
+TEST_CASE("first_categorial_match works", "[requirements][meta]")
 {
-  STATIC_REQUIRE(std::is_same<cub::detail::requirements::first_categorial_match_t<A, A>, A>::value);
-  STATIC_REQUIRE(std::is_same<cub::detail::requirements::first_categorial_match_t<A, D, C>, C>::value);
-  STATIC_REQUIRE(std::is_same<cub::detail::requirements::first_categorial_match_t<A, D, A>, A>::value);
-  STATIC_REQUIRE(std::is_same<cub::detail::requirements::first_categorial_match_t<A, A, D>, A>::value);
-  STATIC_REQUIRE(std::is_same<cub::detail::requirements::first_categorial_match_t<A, C, D>, C>::value);
+  STATIC_REQUIRE(std::is_same<cub::detail::requirements::first_categorial_match<A, A>, A>::value);
+  STATIC_REQUIRE(std::is_same<cub::detail::requirements::first_categorial_match<A, D, C>, C>::value);
+  STATIC_REQUIRE(std::is_same<cub::detail::requirements::first_categorial_match<A, D, A>, A>::value);
+  STATIC_REQUIRE(std::is_same<cub::detail::requirements::first_categorial_match<A, A, D>, A>::value);
+  STATIC_REQUIRE(std::is_same<cub::detail::requirements::first_categorial_match<A, C, D>, C>::value);
 }
 
-TEST_CASE("requirements_categorically_match_guarantees_t works", "[requirements][meta]")
+TEST_CASE("requirements_categorically_match_guarantees works", "[requirements][meta]")
 {
   STATIC_REQUIRE(
-    cub::detail::requirements::requirements_categorically_match_guarantees_t<::cuda::std::tuple<A>,
-                                                                             ::cuda::std::tuple<A>>::value);
+    cub::detail::requirements::requirements_categorically_match_guarantees<::cuda::std::tuple<A>,
+                                                                           ::cuda::std::tuple<A>>::value);
   STATIC_REQUIRE(
-    cub::detail::requirements::requirements_categorically_match_guarantees_t<::cuda::std::tuple<A, D>,
-                                                                             ::cuda::std::tuple<A>>::value);
+    cub::detail::requirements::requirements_categorically_match_guarantees<::cuda::std::tuple<A, D>,
+                                                                           ::cuda::std::tuple<A>>::value);
   STATIC_REQUIRE(
-    cub::detail::requirements::requirements_categorically_match_guarantees_t<::cuda::std::tuple<A, D>,
-                                                                             ::cuda::std::tuple<D>>::value);
+    cub::detail::requirements::requirements_categorically_match_guarantees<::cuda::std::tuple<A, D>,
+                                                                           ::cuda::std::tuple<D>>::value);
   STATIC_REQUIRE(
-    cub::detail::requirements::requirements_categorically_match_guarantees_t<::cuda::std::tuple<A, D>,
-                                                                             ::cuda::std::tuple<A, D>>::value);
+    cub::detail::requirements::requirements_categorically_match_guarantees<::cuda::std::tuple<A, D>,
+                                                                           ::cuda::std::tuple<A, D>>::value);
   STATIC_REQUIRE(
-    cub::detail::requirements::requirements_categorically_match_guarantees_t<::cuda::std::tuple<A, D>,
-                                                                             ::cuda::std::tuple<A, D>>::value);
+    cub::detail::requirements::requirements_categorically_match_guarantees<::cuda::std::tuple<A, D>,
+                                                                           ::cuda::std::tuple<A, D>>::value);
   STATIC_REQUIRE(
-    cub::detail::requirements::requirements_categorically_match_guarantees_t<::cuda::std::tuple<A, D>,
-                                                                             ::cuda::std::tuple<C>>::value);
+    cub::detail::requirements::requirements_categorically_match_guarantees<::cuda::std::tuple<A, D>,
+                                                                           ::cuda::std::tuple<C>>::value);
   STATIC_REQUIRE(
-    !cub::detail::requirements::requirements_categorically_match_guarantees_t<::cuda::std::tuple<D>,
-                                                                              ::cuda::std::tuple<C>>::value);
+    !cub::detail::requirements::requirements_categorically_match_guarantees<::cuda::std::tuple<D>,
+                                                                            ::cuda::std::tuple<C>>::value);
 }
 
 TEST_CASE("get works", "[requirements][meta]")

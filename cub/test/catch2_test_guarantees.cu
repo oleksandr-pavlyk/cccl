@@ -243,7 +243,7 @@ class scan
 
   template <class IteratorT, class ReguirementsT>
   static typename ::cuda::std::enable_if<
-    cub::detail::guarantees::statically_satisfy_t<weak_guarantees_t, ReguirementsT>::value,
+    cub::detail::guarantees::statically_satisfy<weak_guarantees_t, ReguirementsT>::value,
     scan_backend_detector_t>::type
   sum_impl(IteratorT, IteratorT, ReguirementsT)
   {
@@ -252,8 +252,8 @@ class scan
 
   template <class IteratorT, class ReguirementsT>
   static typename ::cuda::std::enable_if<
-    !cub::detail::guarantees::statically_satisfy_t<weak_guarantees_t, ReguirementsT>::value
-      && cub::detail::guarantees::statically_satisfy_t<strong_guarantees_t, ReguirementsT>::value,
+    !cub::detail::guarantees::statically_satisfy<weak_guarantees_t, ReguirementsT>::value
+      && cub::detail::guarantees::statically_satisfy<strong_guarantees_t, ReguirementsT>::value,
     scan_backend_detector_t>::type
   sum_impl(IteratorT, IteratorT, ReguirementsT)
   {

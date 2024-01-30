@@ -76,15 +76,15 @@ using run_to_run_deterministic_t   = determinism_holder_t<determinism_t::run_to_
 using determinism_not_guaranteed_t = determinism_holder_t<determinism_t::not_guaranteed>;
 
 template <class GuaranteesT, class RequirementsT>
-struct statically_satisfy_t : ::cuda::std::false_type
+struct statically_satisfy : ::cuda::std::false_type
 {};
 
 template <class... GuaranteesTs, class... RequirementsTs>
-struct statically_satisfy_t<::cuda::std::tuple<GuaranteesTs...>, ::cuda::std::tuple<RequirementsTs...>>
+struct statically_satisfy<::cuda::std::tuple<GuaranteesTs...>, ::cuda::std::tuple<RequirementsTs...>>
     : ::cuda::std::integral_constant<bool,
-                                     all_t<statically_less_t<RequirementsTs, GuaranteesTs>::value
-                                           || statically_equal_t<RequirementsTs, GuaranteesTs>::value
-                                           || !statically_ordered_t<GuaranteesTs, RequirementsTs>::value...>::value>
+                                     all_t<statically_less<RequirementsTs, GuaranteesTs>::value
+                                           || statically_equal<RequirementsTs, GuaranteesTs>::value
+                                           || !statically_ordered<GuaranteesTs, RequirementsTs>::value...>::value>
 {};
 
 } // namespace guarantees

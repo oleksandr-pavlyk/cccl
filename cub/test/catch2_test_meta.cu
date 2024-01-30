@@ -64,35 +64,35 @@ constexpr bool operator<(A, C) { return false; }
 constexpr bool operator<(A, D) { return false; }
 constexpr bool operator<(D, A) { return false; }
 
-TEST_CASE("ordered_t works", "[meta][utils]")
+TEST_CASE("ordered works", "[meta][utils]")
 {
-  STATIC_REQUIRE(cub::detail::ordered_t<A, B>::value == true);
-  STATIC_REQUIRE(cub::detail::ordered_t<B, A>::value == true);
-  STATIC_REQUIRE(cub::detail::ordered_t<A, C>::value == false);
-  STATIC_REQUIRE(cub::detail::ordered_t<B, C>::value == false);
+  STATIC_REQUIRE(cub::detail::ordered<A, B>::value == true);
+  STATIC_REQUIRE(cub::detail::ordered<B, A>::value == true);
+  STATIC_REQUIRE(cub::detail::ordered<A, C>::value == false);
+  STATIC_REQUIRE(cub::detail::ordered<B, C>::value == false);
 }
 
-TEST_CASE("staticly_ordered_t works", "[meta][utils]")
+TEST_CASE("staticly_ordered works", "[meta][utils]")
 {
-  STATIC_REQUIRE(cub::detail::statically_ordered_t<A, B>::value == false);
-  STATIC_REQUIRE(cub::detail::statically_ordered_t<B, A>::value == true);
-  STATIC_REQUIRE(cub::detail::statically_ordered_t<A, C>::value == false);
-  STATIC_REQUIRE(cub::detail::statically_ordered_t<B, C>::value == false);
+  STATIC_REQUIRE(cub::detail::statically_ordered<A, B>::value == false);
+  STATIC_REQUIRE(cub::detail::statically_ordered<B, A>::value == true);
+  STATIC_REQUIRE(cub::detail::statically_ordered<A, C>::value == false);
+  STATIC_REQUIRE(cub::detail::statically_ordered<B, C>::value == false);
 }
 
-TEST_CASE("staticly_less_t works", "[meta][utils]")
+TEST_CASE("staticly_less works", "[meta][utils]")
 {
-  STATIC_REQUIRE(cub::detail::statically_less_t<A, B>::value == false);
-  STATIC_REQUIRE(cub::detail::statically_less_t<B, A>::value == true);
-  STATIC_REQUIRE(cub::detail::statically_less_t<A, C>::value == false);
-  STATIC_REQUIRE(cub::detail::statically_less_t<B, C>::value == false);
+  STATIC_REQUIRE(cub::detail::statically_less<A, B>::value == false);
+  STATIC_REQUIRE(cub::detail::statically_less<B, A>::value == true);
+  STATIC_REQUIRE(cub::detail::statically_less<A, C>::value == false);
+  STATIC_REQUIRE(cub::detail::statically_less<B, C>::value == false);
 }
 
-TEST_CASE("staticly_equal_t works", "[meta][utils]")
+TEST_CASE("staticly_equal works", "[meta][utils]")
 {
-  STATIC_REQUIRE(cub::detail::statically_equal_t<A, A>::value == false);
-  STATIC_REQUIRE(cub::detail::statically_equal_t<A, D>::value == true);
-  STATIC_REQUIRE(cub::detail::statically_equal_t<D, A>::value == true);
-  STATIC_REQUIRE(cub::detail::statically_equal_t<A, C>::value == false);
-  STATIC_REQUIRE(cub::detail::statically_equal_t<B, C>::value == false);
+  STATIC_REQUIRE(cub::detail::statically_equal<A, A>::value == false);
+  STATIC_REQUIRE(cub::detail::statically_equal<A, D>::value == true);
+  STATIC_REQUIRE(cub::detail::statically_equal<D, A>::value == true);
+  STATIC_REQUIRE(cub::detail::statically_equal<A, C>::value == false);
+  STATIC_REQUIRE(cub::detail::statically_equal<B, C>::value == false);
 }

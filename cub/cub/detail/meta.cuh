@@ -70,41 +70,41 @@ using none_t = ::cuda::std::is_same<logic_helper_t<Bs...>, logic_helper_t<false_
 
 // True if `T` and `U` are ordered with `operator<`
 template <class T, class U, class = void>
-struct ordered_t : ::cuda::std::false_type
+struct ordered : ::cuda::std::false_type
 {};
 
 template <class T, class U>
-struct ordered_t<T,
-                 U,
-                 void_t<decltype(::cuda::std::declval<T>() < ::cuda::std::declval<U>()
-                                 && ::cuda::std::declval<U>() < ::cuda::std::declval<T>())>> : ::cuda::std::true_type
+struct ordered<T,
+               U,
+               void_t<decltype(::cuda::std::declval<T>() < ::cuda::std::declval<U>()
+                               && ::cuda::std::declval<U>() < ::cuda::std::declval<T>())>> : ::cuda::std::true_type
 {};
 
 // True if `T` and `U` can be compared at compile time with `operator<`
 template <class T, class U, class = void>
-struct statically_ordered_t : ::cuda::std::false_type
+struct statically_ordered : ::cuda::std::false_type
 {};
 
 template <class T, class U>
-struct statically_ordered_t<T, U, typename ::cuda::std::enable_if<true_t<T{} < U{} || U{} < T{}>::value>::type>
+struct statically_ordered<T, U, typename ::cuda::std::enable_if<true_t<T{} < U{} || U{} < T{}>::value>::type>
     : ::cuda::std::true_type
 {};
 
 // True if `T{} < U{}` is true and can be computed at compile time
 template <class T, class U, class = void>
-struct statically_less_t : ::cuda::std::false_type
+struct statically_less : ::cuda::std::false_type
 {};
 
 template <class T, class U>
-struct statically_less_t<T, U, typename ::cuda::std::enable_if<T{} < U{}>::type> : ::cuda::std::true_type
+struct statically_less<T, U, typename ::cuda::std::enable_if<T{} < U{}>::type> : ::cuda::std::true_type
 {};
 
 // True if `!(T{} < U{}) && !(T{} < T{})` and the expression can be computed at compile time
 template <class T, class U>
-struct statically_equal_t
+struct statically_equal
     : ::cuda::std::integral_constant<
         bool,
-        statically_ordered_t<T, U>::value && !statically_less_t<T, U>::value && !statically_less_t<U, T>::value>
+        statically_ordered<T, U>::value && !statically_less<T, U>::value && !statically_less<U, T>::value>
 {};
 
 } // namespace detail

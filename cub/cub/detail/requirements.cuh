@@ -52,12 +52,12 @@ namespace requirements
 
 // The `operator<(T, T)` must exist
 template <class T>
-struct requirement_t : ordered_t<T, T>
+struct requirement : ordered<T, T>
 {};
 
-// True if all `Ts...` satisfy `requirement_t`
+// True if all `Ts...` satisfy `requirement`
 template <class... Ts>
-struct list_of_requirements_t : all_t<requirement_t<Ts>::value...>
+struct list_of_requirements : all_t<requirement<Ts>::value...>
 {};
 
 template <class... Ts>
@@ -68,15 +68,15 @@ template <class T, class... Ts>
 struct list_of_requirements_from_unique_categories_impl<T, Ts...>
     : ::cuda::std::integral_constant<
         bool,
-        none_t<ordered_t<T, Ts>::value...>::value && list_of_requirements_from_unique_categories_impl<Ts...>::value>
+        none_t<ordered<T, Ts>::value...>::value && list_of_requirements_from_unique_categories_impl<Ts...>::value>
 {};
 
 // True if `Ts...` is a list of requirements, and i-th type in `Ts...` is not ordered with j-th type for all i != j
 template <class... Ts>
-struct list_of_requirements_from_unique_categories_t
+struct list_of_requirements_from_unique_categories
     : ::cuda::std::integral_constant<
         bool,
-        list_of_requirements_t<Ts...>::value && list_of_requirements_from_unique_categories_impl<Ts...>::value>
+        list_of_requirements<Ts...>::value && list_of_requirements_from_unique_categories_impl<Ts...>::value>
 {};
 
 template <class CategoryRepresentativeT, class... Ts>
@@ -90,7 +90,7 @@ struct first_categorial_match_rev_id<CategoryRepresentativeT> : ::cuda::std::int
 template <class CategoryRepresentativeT, class H, class... Ts>
 struct first_categorial_match_rev_id<CategoryRepresentativeT, H, Ts...>
     : ::cuda::std::integral_constant<::cuda::std::size_t,
-                                     ordered_t<CategoryRepresentativeT, H>::value
+                                     ordered<CategoryRepresentativeT, H>::value
                                        ? sizeof...(Ts) + 1
                                        : first_categorial_match_rev_id<CategoryRepresentativeT, Ts...>::value>
 {};
@@ -98,7 +98,7 @@ struct first_categorial_match_rev_id<CategoryRepresentativeT, H, Ts...>
 // Index of the first type in `Ts...` that `CategoryRepresentativeT` is ordered with
 // If no such type exists, returns `sizeof...(Ts)` (end)
 template <class CategoryRepresentativeT, class... Ts>
-struct first_categorial_match_id_t
+struct first_categorial_match_id
     : ::cuda::std::integral_constant<::cuda::std::size_t,
                                      sizeof...(Ts) - first_categorial_match_rev_id<CategoryRepresentativeT, Ts...>::value>
 {};
@@ -114,58 +114,58 @@ struct first_categorial_match_impl<CategoryRepresentativeT, E, E>
 {};
 
 template <class CategoryRepresentativeT, class... Ts>
-using first_categorial_match_t =
+using first_categorial_match =
   typename first_categorial_match_impl<CategoryRepresentativeT,
-                                       first_categorial_match_id_t<CategoryRepresentativeT, Ts...>::value,
+                                       first_categorial_match_id<CategoryRepresentativeT, Ts...>::value,
                                        sizeof...(Ts),
                                        Ts...>::type;
 
 template <class GuaranteesT, class RequirementsT>
-struct requirements_categorically_match_guarantees_t : ::cuda::std::true_type
+struct requirements_categorically_match_guarantees : ::cuda::std::true_type
 {};
 
 template <class RequirementT, class... RequirementsTs, class... GuaranteesTs>
-struct requirements_categorically_match_guarantees_t<::cuda::std::tuple<GuaranteesTs...>,
-                                                     ::cuda::std::tuple<RequirementT, RequirementsTs...>>
+struct requirements_categorically_match_guarantees<::cuda::std::tuple<GuaranteesTs...>,
+                                                   ::cuda::std::tuple<RequirementT, RequirementsTs...>>
     : ::cuda::std::integral_constant<
         bool,
-        !list_of_requirements_from_unique_categories_t<RequirementT, GuaranteesTs...>::value
-          && requirements_categorically_match_guarantees_t<::cuda::std::tuple<GuaranteesTs...>,
-                                                           ::cuda::std::tuple<RequirementsTs...>>::value>
+        !list_of_requirements_from_unique_categories<RequirementT, GuaranteesTs...>::value
+          && requirements_categorically_match_guarantees<::cuda::std::tuple<GuaranteesTs...>,
+                                                         ::cuda::std::tuple<RequirementsTs...>>::value>
 {};
 
 template <
   class CategoryRepresentativeT,
   class... Ts,
-  typename ::cuda::std::enable_if<first_categorial_match_id_t<CategoryRepresentativeT, Ts...>::value != sizeof...(Ts),
+  typename ::cuda::std::enable_if<first_categorial_match_id<CategoryRepresentativeT, Ts...>::value != sizeof...(Ts),
                                   int>::type = 0>
-first_categorial_match_t<CategoryRepresentativeT, Ts...> get(const ::cuda::std::tuple<Ts...>& tpl)
+first_categorial_match<CategoryRepresentativeT, Ts...> get(const ::cuda::std::tuple<Ts...>& tpl)
 {
-  return ::cuda::std::get<first_categorial_match_id_t<CategoryRepresentativeT, Ts...>::value>(tpl);
+  return ::cuda::std::get<first_categorial_match_id<CategoryRepresentativeT, Ts...>::value>(tpl);
 }
 
 template <class CategoryRepresentativeT,
           class... GuaranteesTs,
           class... RequirementsTs,
           typename ::cuda::std::enable_if<
-            first_categorial_match_id_t<CategoryRepresentativeT, RequirementsTs...>::value != sizeof...(RequirementsTs),
+            first_categorial_match_id<CategoryRepresentativeT, RequirementsTs...>::value != sizeof...(RequirementsTs),
             int>::type = 0>
-first_categorial_match_t<CategoryRepresentativeT, RequirementsTs...>
+first_categorial_match<CategoryRepresentativeT, RequirementsTs...>
 masked_value(const ::cuda::std::tuple<GuaranteesTs...>&, const ::cuda::std::tuple<RequirementsTs...>& requirements)
 {
-  return ::cuda::std::get<first_categorial_match_id_t<CategoryRepresentativeT, RequirementsTs...>::value>(requirements);
+  return ::cuda::std::get<first_categorial_match_id<CategoryRepresentativeT, RequirementsTs...>::value>(requirements);
 }
 
 template <class CategoryRepresentativeT,
           class... GuaranteesTs,
           class... RequirementsTs,
           typename ::cuda::std::enable_if<
-            first_categorial_match_id_t<CategoryRepresentativeT, RequirementsTs...>::value == sizeof...(RequirementsTs),
+            first_categorial_match_id<CategoryRepresentativeT, RequirementsTs...>::value == sizeof...(RequirementsTs),
             int>::type = 0>
-first_categorial_match_t<CategoryRepresentativeT, GuaranteesTs...>
+first_categorial_match<CategoryRepresentativeT, GuaranteesTs...>
 masked_value(const ::cuda::std::tuple<GuaranteesTs...>& guarantees, const ::cuda::std::tuple<RequirementsTs...>&)
 {
-  return ::cuda::std::get<first_categorial_match_id_t<CategoryRepresentativeT, GuaranteesTs...>::value>(guarantees);
+  return ::cuda::std::get<first_categorial_match_id<CategoryRepresentativeT, GuaranteesTs...>::value>(guarantees);
 }
 
 template <class... GuaranteesTs, class... RequirementsTs>
@@ -173,12 +173,12 @@ auto mask(const ::cuda::std::tuple<GuaranteesTs...>& guarantees,
           const ::cuda::std::tuple<RequirementsTs...>& requirements)
   -> decltype(::cuda::std::make_tuple(masked_value<GuaranteesTs>(guarantees, requirements)...))
 {
-  static_assert(list_of_requirements_from_unique_categories_t<GuaranteesTs...>::value, "Guarantees must be unique");
-  static_assert(list_of_requirements_from_unique_categories_t<RequirementsTs...>::value, "Requirements must be unique");
-  static_assert(requirements_categorically_match_guarantees_t<::cuda::std::tuple<GuaranteesTs...>,
-                                                              ::cuda::std::tuple<RequirementsTs...>>::value,
+  static_assert(list_of_requirements_from_unique_categories<GuaranteesTs...>::value, "Guarantees must be unique");
+  static_assert(list_of_requirements_from_unique_categories<RequirementsTs...>::value, "Requirements must be unique");
+  static_assert(requirements_categorically_match_guarantees<::cuda::std::tuple<GuaranteesTs...>,
+                                                            ::cuda::std::tuple<RequirementsTs...>>::value,
                 "Requirements do not match guarantees");
-  // static_assert(!contains_unknown_requirements_t<std::tuple<Ss...>, std::tuple<GuaranteesTs...>>::value,
+  // static_assert(!contains_unknown_requirements<std::tuple<Ss...>, std::tuple<GuaranteesTs...>>::value,
   //               "Unknown requirements");
   return ::cuda::std::make_tuple(masked_value<GuaranteesTs>(guarantees, requirements)...);
 }
@@ -190,7 +190,7 @@ auto mask(const ::cuda::std::tuple<GuaranteesTs...>& guarantees,
 template <class... RequirementsTs>
 ::cuda::std::tuple<RequirementsTs...> require(RequirementsTs... requirements)
 {
-  static_assert(detail::requirements::list_of_requirements_from_unique_categories_t<RequirementsTs...>::value,
+  static_assert(detail::requirements::list_of_requirements_from_unique_categories<RequirementsTs...>::value,
                 "Requirements must be unique");
   return ::cuda::std::make_tuple(requirements...);
 }
