@@ -123,8 +123,8 @@ public:
   sum(IteratorT begin, IteratorT end, RequirementsT requirements = default_guarantees_t())
   {
     auto guarantees    = cub::detail::requirements::mask(default_guarantees_t(), requirements);
-    auto max_footprint = cub::detail::requirements::get<detail::max_memory_footprint_t>(guarantees);
-    auto determinism = cub::detail::requirements::get<cub::detail::guarantees::run_to_run_deterministic_t>(guarantees);
+    auto max_footprint = cub::detail::requirements::match<detail::max_memory_footprint_t>(guarantees);
+    auto determinism = cub::detail::requirements::match<cub::detail::guarantees::run_to_run_deterministic_t>(guarantees);
     return reduce::sum(begin, end, determinism, max_footprint);
   }
 };

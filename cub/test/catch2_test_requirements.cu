@@ -123,10 +123,10 @@ TEST_CASE("get works", "[requirements][meta]")
   A a1{1};
   A a2{2};
 
-  REQUIRE(cub::detail::requirements::get<C>(::cuda::std::make_tuple(a1)).v == a1.v);
-  REQUIRE(cub::detail::requirements::get<C>(::cuda::std::make_tuple(a2)).v == a2.v);
-  REQUIRE(cub::detail::requirements::get<C>(::cuda::std::make_tuple(D{}, a2)).v == a2.v);
-  REQUIRE(cub::detail::requirements::get<C>(::cuda::std::make_tuple(a2, D{})).v == a2.v);
+  REQUIRE(cub::detail::requirements::match<C>(::cuda::std::make_tuple(a1)).v == a1.v);
+  REQUIRE(cub::detail::requirements::match<C>(::cuda::std::make_tuple(a2)).v == a2.v);
+  REQUIRE(cub::detail::requirements::match<C>(::cuda::std::make_tuple(D{}, a2)).v == a2.v);
+  REQUIRE(cub::detail::requirements::match<C>(::cuda::std::make_tuple(a2, D{})).v == a2.v);
 }
 
 TEST_CASE("mask works", "[requirements][meta]")

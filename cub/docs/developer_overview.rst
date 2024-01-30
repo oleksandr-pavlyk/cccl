@@ -839,9 +839,9 @@ This is achieved as follows:
       static auto sum(IteratorT begin, IteratorT end, RequirementsT requirements = default_guarantees_t())                  // (2)
       {
         auto guarantees    = cub::detail::requirements::mask(default_guarantees_t(), requirements);                         // (3)
-        auto max_footprint = cub::detail::requirements::get<detail::max_memory_footprint_t>(guarantees);                    // (4)
-        auto determinism = cub::detail::requirements::get<cub::detail::guarantees::run_to_run_deterministic_t>(guarantees); // (5)
-        return reduce::sum(begin, end, determinism, max_footprint);                                                         // (6)
+        auto max_footprint = cub::detail::requirements::match<detail::max_memory_footprint_t>(guarantees);                  // (4)
+        auto determinism = cub::detail::requirements::match<cub::detail::guarantees::run_to_run_deterministic_t>(guarantees); // (5)
+        return reduce::sum(begin, end, determinism, max_footprint);                                                           // (6)
       }
    };
 

@@ -139,7 +139,7 @@ template <
   class... Ts,
   typename ::cuda::std::enable_if<first_categorial_match_id<CategoryRepresentativeT, Ts...>::value != sizeof...(Ts),
                                   int>::type = 0>
-first_categorial_match<CategoryRepresentativeT, Ts...> get(const ::cuda::std::tuple<Ts...>& tpl)
+first_categorial_match<CategoryRepresentativeT, Ts...> match(const ::cuda::std::tuple<Ts...>& tpl)
 {
   return ::cuda::std::get<first_categorial_match_id<CategoryRepresentativeT, Ts...>::value>(tpl);
 }
