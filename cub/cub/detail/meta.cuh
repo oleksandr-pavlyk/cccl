@@ -28,7 +28,6 @@
 #pragma once
 
 #include <cub/config.cuh>
-#include "cuda/std/detail/libcxx/include/__type_traits/integral_constant.h"
 
 #if defined(_CCCL_IMPLICIT_SYSTEM_HEADER_GCC)
 #  pragma GCC system_header
