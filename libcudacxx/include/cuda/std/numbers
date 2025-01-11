@@ -1,0 +1,173 @@
+//===----------------------------------------------------------------------===//
+//
+// Part of libcu++, the C++ Standard Library for your entire system,
+// under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES.
+//
+//===----------------------------------------------------------------------===//
+
+#ifndef _CUDA_STD_NUMBERS
+#define _CUDA_STD_NUMBERS
+
+#include <cuda/std/detail/__config>
+
+#if defined(_CCCL_IMPLICIT_SYSTEM_HEADER_GCC)
+#  pragma GCC system_header
+#elif defined(_CCCL_IMPLICIT_SYSTEM_HEADER_CLANG)
+#  pragma clang system_header
+#elif defined(_CCCL_IMPLICIT_SYSTEM_HEADER_MSVC)
+#  pragma system_header
+#endif // no system header
+
+#include <cuda/std/__concepts/concept_macros.h>
+#include <cuda/std/__type_traits/is_floating_point.h>
+#include <cuda/std/version>
+
+_LIBCUDACXX_BEGIN_NAMESPACE_STD
+
+namespace numbers
+{
+
+_CCCL_TEMPLATE(class _Tp)
+_CCCL_REQUIRES(_CCCL_TRAIT(is_floating_point, _Tp))
+struct __e
+{
+  static constexpr _Tp value = 2.718281828459045235360287471352662;
+};
+
+_CCCL_TEMPLATE(class _Tp)
+_CCCL_REQUIRES(_CCCL_TRAIT(is_floating_point, _Tp))
+struct __log2e
+{
+  static constexpr _Tp value = 1.442695040888963407359924681001892;
+};
+
+_CCCL_TEMPLATE(class _Tp)
+_CCCL_REQUIRES(_CCCL_TRAIT(is_floating_point, _Tp))
+struct __log10e
+{
+  static constexpr _Tp value = 0.434294481903251827651128918916605;
+};
+
+_CCCL_TEMPLATE(class _Tp)
+_CCCL_REQUIRES(_CCCL_TRAIT(is_floating_point, _Tp))
+struct __pi
+{
+  static constexpr _Tp value = 3.141592653589793238462643383279502;
+};
+
+_CCCL_TEMPLATE(class _Tp)
+_CCCL_REQUIRES(_CCCL_TRAIT(is_floating_point, _Tp))
+struct __inv_pi
+{
+  static constexpr _Tp value = 0.318309886183790671537767526745028;
+};
+
+_CCCL_TEMPLATE(class _Tp)
+_CCCL_REQUIRES(_CCCL_TRAIT(is_floating_point, _Tp))
+struct __inv_sqrtpi
+{
+  static constexpr _Tp value = 0.564189583547756286948079451560772;
+};
+
+_CCCL_TEMPLATE(class _Tp)
+_CCCL_REQUIRES(_CCCL_TRAIT(is_floating_point, _Tp))
+struct __ln2
+{
+  static constexpr _Tp value = 0.693147180559945309417232121458176;
+};
+
+_CCCL_TEMPLATE(class _Tp)
+_CCCL_REQUIRES(_CCCL_TRAIT(is_floating_point, _Tp))
+struct __ln10
+{
+  static constexpr _Tp value = 2.302585092994045684017991454684364;
+};
+
+_CCCL_TEMPLATE(class _Tp)
+_CCCL_REQUIRES(_CCCL_TRAIT(is_floating_point, _Tp))
+struct __sqrt2
+{
+  static constexpr _Tp value = 1.414213562373095048801688724209698;
+};
+
+_CCCL_TEMPLATE(class _Tp)
+_CCCL_REQUIRES(_CCCL_TRAIT(is_floating_point, _Tp))
+struct __sqrt3
+{
+  static constexpr _Tp value = 1.732050807568877293527446341505872;
+};
+
+_CCCL_TEMPLATE(class _Tp)
+_CCCL_REQUIRES(_CCCL_TRAIT(is_floating_point, _Tp))
+struct __inv_sqrt3
+{
+  static constexpr _Tp value = 0.577350269189625764509148780501957;
+};
+
+_CCCL_TEMPLATE(class _Tp)
+_CCCL_REQUIRES(_CCCL_TRAIT(is_floating_point, _Tp))
+struct __egamma
+{
+  static constexpr _Tp value = 0.577215664901532860606512090082402;
+};
+
+_CCCL_TEMPLATE(class _Tp)
+_CCCL_REQUIRES(_CCCL_TRAIT(is_floating_point, _Tp))
+struct __phi
+{
+  static constexpr _Tp value = 1.618033988749894848204586834365638;
+};
+
+#if !defined(_CCCL_NO_VARIABLE_TEMPLATES)
+
+template <class _Tp>
+_CCCL_INLINE_VAR constexpr _Tp e_v = __e<_Tp>::value;
+template <class _Tp>
+_CCCL_INLINE_VAR constexpr _Tp log2e_v = __log2e<_Tp>::value;
+template <class _Tp>
+_CCCL_INLINE_VAR constexpr _Tp log10e_v = __log10e<_Tp>::value;
+template <class _Tp>
+_CCCL_INLINE_VAR constexpr _Tp pi_v = __pi<_Tp>::value;
+template <class _Tp>
+_CCCL_INLINE_VAR constexpr _Tp inv_pi_v = __inv_pi<_Tp>::value;
+template <class _Tp>
+_CCCL_INLINE_VAR constexpr _Tp inv_sqrtpi_v = __inv_sqrtpi<_Tp>::value;
+template <class _Tp>
+_CCCL_INLINE_VAR constexpr _Tp ln2_v = __ln2<_Tp>::value;
+template <class _Tp>
+_CCCL_INLINE_VAR constexpr _Tp ln10_v = __ln10<_Tp>::value;
+template <class _Tp>
+_CCCL_INLINE_VAR constexpr _Tp sqrt2_v = __sqrt2<_Tp>::value;
+template <class _Tp>
+_CCCL_INLINE_VAR constexpr _Tp sqrt3_v = __sqrt3<_Tp>::value;
+template <class _Tp>
+_CCCL_INLINE_VAR constexpr _Tp inv_sqrt3_v = __inv_sqrt3<_Tp>::value;
+template <class _Tp>
+_CCCL_INLINE_VAR constexpr _Tp egamma_v = __egamma<_Tp>::value;
+template <class _Tp>
+_CCCL_INLINE_VAR constexpr _Tp phi_v = __phi<_Tp>::value;
+
+_CCCL_INLINE_VAR constexpr double e          = e_v<double>;
+_CCCL_INLINE_VAR constexpr double log2e      = log2e_v<double>;
+_CCCL_INLINE_VAR constexpr double log10e     = log10e_v<double>;
+_CCCL_INLINE_VAR constexpr double pi         = pi_v<double>;
+_CCCL_INLINE_VAR constexpr double inv_pi     = inv_pi_v<double>;
+_CCCL_INLINE_VAR constexpr double inv_sqrtpi = inv_sqrtpi_v<double>;
+_CCCL_INLINE_VAR constexpr double ln2        = ln2_v<double>;
+_CCCL_INLINE_VAR constexpr double ln10       = ln10_v<double>;
+_CCCL_INLINE_VAR constexpr double sqrt2      = sqrt2_v<double>;
+_CCCL_INLINE_VAR constexpr double sqrt3      = sqrt3_v<double>;
+_CCCL_INLINE_VAR constexpr double inv_sqrt3  = inv_sqrt3_v<double>;
+_CCCL_INLINE_VAR constexpr double egamma     = egamma_v<double>;
+_CCCL_INLINE_VAR constexpr double phi        = phi_v<double>;
+
+#endif // !_CCCL_NO_VARIABLE_TEMPLATES
+
+} // namespace numbers
+
+_LIBCUDACXX_END_NAMESPACE_STD
+
+#endif // _CUDA_STD_NUMBERS
