@@ -21,7 +21,6 @@
 #  pragma system_header
 #endif // no system header
 
-#include <cuda/std/__concepts/concept_macros.h>
 #include <cuda/std/__type_traits/enable_if.h>
 #include <cuda/std/__type_traits/is_floating_point.h>
 #include <cuda/std/version>
@@ -38,327 +37,107 @@ _CCCL_DIAG_POP
 
 _LIBCUDACXX_BEGIN_NAMESPACE_STD
 
-namespace numbers
-{
-
-template <class _Tp, class = void>
-struct __e
+template <class _Tp>
+struct __numbers_ill_formed_impl : false_type
 {};
 
-template <class _Tp>
-struct __e<_Tp, enable_if_t<_CCCL_TRAIT(is_floating_point, _Tp)>>
+template <class _Tp, class = void>
+struct __numbers
 {
-  static constexpr _Tp value = 2.718281828459045235360287471352662;
+  static_assert(__numbers_ill_formed_impl<_Tp>::value,
+                "[math.constants] A program that instantiates a primary template of a mathematical constant variable "
+                "template is ill-formed.");
 };
 
-template <class _Tp, class = void>
-struct __log2e
-{};
-
 template <class _Tp>
-struct __log2e<_Tp, enable_if_t<_CCCL_TRAIT(is_floating_point, _Tp)>>
+struct __numbers<_Tp, enable_if_t<_CCCL_TRAIT(is_floating_point, _Tp)>>
 {
-  static constexpr _Tp value = 1.442695040888963407359924681001892;
-};
-
-template <class _Tp, class = void>
-struct __log10e
-{};
-
-template <class _Tp>
-struct __log10e<_Tp, enable_if_t<_CCCL_TRAIT(is_floating_point, _Tp)>>
-{
-  static constexpr _Tp value = 0.434294481903251827651128918916605;
-};
-
-template <class _Tp, class = void>
-struct __pi
-{};
-
-template <class _Tp>
-struct __pi<_Tp, enable_if_t<_CCCL_TRAIT(is_floating_point, _Tp)>>
-{
-  static constexpr _Tp value = 3.141592653589793238462643383279502;
-};
-
-template <class _Tp, class = void>
-struct __inv_pi
-{};
-
-template <class _Tp>
-struct __inv_pi<_Tp, enable_if_t<_CCCL_TRAIT(is_floating_point, _Tp)>>
-{
-  static constexpr _Tp value = 0.318309886183790671537767526745028;
-};
-
-template <class _Tp, class = void>
-struct __inv_sqrtpi
-{};
-
-template <class _Tp>
-struct __inv_sqrtpi<_Tp, enable_if_t<_CCCL_TRAIT(is_floating_point, _Tp)>>
-{
-  static constexpr _Tp value = 0.564189583547756286948079451560772;
-};
-
-template <class _Tp, class = void>
-struct __ln2
-{};
-
-template <class _Tp>
-struct __ln2<_Tp, enable_if_t<_CCCL_TRAIT(is_floating_point, _Tp)>>
-{
-  static constexpr _Tp value = 0.693147180559945309417232121458176;
-};
-
-template <class _Tp, class = void>
-struct __ln10
-{};
-
-template <class _Tp>
-struct __ln10<_Tp, enable_if_t<_CCCL_TRAIT(is_floating_point, _Tp)>>
-{
-  static constexpr _Tp value = 2.302585092994045684017991454684364;
-};
-
-template <class _Tp, class = void>
-struct __sqrt2
-{};
-
-template <class _Tp>
-struct __sqrt2<_Tp, enable_if_t<_CCCL_TRAIT(is_floating_point, _Tp)>>
-{
-  static constexpr _Tp value = 1.414213562373095048801688724209698;
-};
-
-template <class _Tp, class = void>
-struct __sqrt3
-{};
-
-template <class _Tp>
-struct __sqrt3<_Tp, enable_if_t<_CCCL_TRAIT(is_floating_point, _Tp)>>
-{
-  static constexpr _Tp value = 1.732050807568877293527446341505872;
-};
-
-template <class _Tp, class = void>
-struct __inv_sqrt3
-{};
-
-template <class _Tp>
-struct __inv_sqrt3<_Tp, enable_if_t<_CCCL_TRAIT(is_floating_point, _Tp)>>
-{
-  static constexpr _Tp value = 0.577350269189625764509148780501957;
-};
-
-template <class _Tp, class = void>
-struct __egamma
-{};
-
-template <class _Tp>
-struct __egamma<_Tp, enable_if_t<_CCCL_TRAIT(is_floating_point, _Tp)>>
-{
-  static constexpr _Tp value = 0.577215664901532860606512090082402;
-};
-
-template <class _Tp, class = void>
-struct __phi
-{};
-
-template <class _Tp>
-struct __phi<_Tp, enable_if_t<_CCCL_TRAIT(is_floating_point, _Tp)>>
-{
-  static constexpr _Tp value = 1.618033988749894848204586834365638;
+  static constexpr _Tp __e          = 2.718281828459045235360287471352662;
+  static constexpr _Tp __log2e      = 1.442695040888963407359924681001892;
+  static constexpr _Tp __log10e     = 0.434294481903251827651128918916605;
+  static constexpr _Tp __pi         = 3.141592653589793238462643383279502;
+  static constexpr _Tp __inv_pi     = 0.318309886183790671537767526745028;
+  static constexpr _Tp __inv_sqrtpi = 0.564189583547756286948079451560772;
+  static constexpr _Tp __ln2        = 0.693147180559945309417232121458176;
+  static constexpr _Tp __ln10       = 2.302585092994045684017991454684364;
+  static constexpr _Tp __sqrt2      = 1.414213562373095048801688724209698;
+  static constexpr _Tp __sqrt3      = 1.732050807568877293527446341505872;
+  static constexpr _Tp __inv_sqrt3  = 0.577350269189625764509148780501957;
+  static constexpr _Tp __egamma     = 0.577215664901532860606512090082402;
+  static constexpr _Tp __phi        = 1.618033988749894848204586834365638;
 };
 
 #if defined(_LIBCUDACXX_HAS_NVFP16)
 template <>
-struct __e<__half>
+struct __numbers<__half>
 {
-  static constexpr __half value{__half_raw{0x4170u}};
-};
-
-template <>
-struct __log2e<__half>
-{
-  static constexpr __half value{__half_raw{0x3dc5u}};
-};
-
-template <>
-struct __log10e<__half>
-{
-  static constexpr __half value{__half_raw{0x36f3u}};
-};
-
-template <>
-struct __pi<__half>
-{
-  static constexpr __half value{__half_raw{0x4248u}};
-};
-
-template <>
-struct __inv_pi<__half>
-{
-  static constexpr __half value{__half_raw{0x3518u}};
-};
-
-template <>
-struct __inv_sqrtpi<__half>
-{
-  static constexpr __half value{__half_raw{0x3883u}};
-};
-
-template <>
-struct __ln2<__half>
-{
-  static constexpr __half value{__half_raw{0x398cu}};
-};
-
-template <>
-struct __ln10<__half>
-{
-  static constexpr __half value{__half_raw{0x409bu}};
-};
-
-template <>
-struct __sqrt2<__half>
-{
-  static constexpr __half value{__half_raw{0x3da8u}};
-};
-
-template <>
-struct __sqrt3<__half>
-{
-  static constexpr __half value{__half_raw{0x3eeeu}};
-};
-
-template <>
-struct __inv_sqrt3<__half>
-{
-  static constexpr __half value{__half_raw{0x389eu}};
-};
-
-template <>
-struct __egamma<__half>
-{
-  static constexpr __half value{__half_raw{0x389eu}};
-};
-
-template <>
-struct __phi<__half>
-{
-  static constexpr __half value{__half_raw{0x3e79u}};
+  static constexpr __half __e          = __half_raw{0x4170u};
+  static constexpr __half __log2e      = __half_raw{0x3dc5u};
+  static constexpr __half __log10e     = __half_raw{0x36f3u};
+  static constexpr __half __pi         = __half_raw{0x4248u};
+  static constexpr __half __inv_pi     = __half_raw{0x3518u};
+  static constexpr __half __inv_sqrtpi = __half_raw{0x3883u};
+  static constexpr __half __ln2        = __half_raw{0x398cu};
+  static constexpr __half __ln10       = __half_raw{0x409bu};
+  static constexpr __half __sqrt2      = __half_raw{0x3da8u};
+  static constexpr __half __sqrt3      = __half_raw{0x3eeeu};
+  static constexpr __half __inv_sqrt3  = __half_raw{0x389eu};
+  static constexpr __half __egamma     = __half_raw{0x389eu};
+  static constexpr __half __phi        = __half_raw{0x3e79u};
 };
 #endif // _LIBCUDACXX_HAS_NVFP16
 
 #if defined(_LIBCUDACXX_HAS_NVBF16)
 template <>
-struct __e<__nv_bfloat16>
+struct __numbers<__nv_bfloat16>
 {
-  static constexpr __nv_bfloat16 value{__nv_bfloat16_raw{0x402eu}};
-};
-
-template <>
-struct __log2e<__nv_bfloat16>
-{
-  static constexpr __nv_bfloat16 value{__nv_bfloat16_raw{0x3fb9u}};
-};
-
-template <>
-struct __log10e<__nv_bfloat16>
-{
-  static constexpr __nv_bfloat16 value{__nv_bfloat16_raw{0x3edeu}};
-};
-
-template <>
-struct __pi<__nv_bfloat16>
-{
-  static constexpr __nv_bfloat16 value{__nv_bfloat16_raw{0x4049u}};
-};
-
-template <>
-struct __inv_pi<__nv_bfloat16>
-{
-  static constexpr __nv_bfloat16 value{__nv_bfloat16_raw{0x3ea3u}};
-};
-
-template <>
-struct __inv_sqrtpi<__nv_bfloat16>
-{
-  static constexpr __nv_bfloat16 value{__nv_bfloat16_raw{0x3f10u}};
-};
-
-template <>
-struct __ln2<__nv_bfloat16>
-{
-  static constexpr __nv_bfloat16 value{__nv_bfloat16_raw{0x3f31u}};
-};
-
-template <>
-struct __ln10<__nv_bfloat16>
-{
-  static constexpr __nv_bfloat16 value{__nv_bfloat16_raw{0x4013u}};
-};
-
-template <>
-struct __sqrt2<__nv_bfloat16>
-{
-  static constexpr __nv_bfloat16 value{__nv_bfloat16_raw{0x3fb5u}};
-};
-
-template <>
-struct __sqrt3<__nv_bfloat16>
-{
-  static constexpr __nv_bfloat16 value{__nv_bfloat16_raw{0x3fdeu}};
-};
-
-template <>
-struct __inv_sqrt3<__nv_bfloat16>
-{
-  static constexpr __nv_bfloat16 value{__nv_bfloat16_raw{0x3f14u}};
-};
-
-template <>
-struct __egamma<__nv_bfloat16>
-{
-  static constexpr __nv_bfloat16 value{__nv_bfloat16_raw{0x3f14u}};
-};
-
-template <>
-struct __phi<__nv_bfloat16>
-{
-  static constexpr __nv_bfloat16 value{__nv_bfloat16_raw{0x3fcfu}};
+  static constexpr __nv_bfloat16 __e          = __nv_bfloat16_raw{0x402eu};
+  static constexpr __nv_bfloat16 __log2e      = __nv_bfloat16_raw{0x3fb9u};
+  static constexpr __nv_bfloat16 __log10e     = __nv_bfloat16_raw{0x3edeu};
+  static constexpr __nv_bfloat16 __pi         = __nv_bfloat16_raw{0x4049u};
+  static constexpr __nv_bfloat16 __inv_pi     = __nv_bfloat16_raw{0x3ea3u};
+  static constexpr __nv_bfloat16 __inv_sqrtpi = __nv_bfloat16_raw{0x3f10u};
+  static constexpr __nv_bfloat16 __ln2        = __nv_bfloat16_raw{0x3f31u};
+  static constexpr __nv_bfloat16 __ln10       = __nv_bfloat16_raw{0x4013u};
+  static constexpr __nv_bfloat16 __sqrt2      = __nv_bfloat16_raw{0x3fb5u};
+  static constexpr __nv_bfloat16 __sqrt3      = __nv_bfloat16_raw{0x3fdeu};
+  static constexpr __nv_bfloat16 __inv_sqrt3  = __nv_bfloat16_raw{0x3f14u};
+  static constexpr __nv_bfloat16 __egamma     = __nv_bfloat16_raw{0x3f14u};
+  static constexpr __nv_bfloat16 __phi        = __nv_bfloat16_raw{0x3fcfu};
 };
 #endif // _LIBCUDACXX_HAS_NVBF16
 
 #if !defined(_CCCL_NO_VARIABLE_TEMPLATES)
 
+namespace numbers
+{
+
 template <class _Tp>
-_CCCL_GLOBAL_CONSTANT _Tp e_v = __e<_Tp>::value;
+_CCCL_GLOBAL_CONSTANT _Tp e_v = __numbers<_Tp>::__e;
 template <class _Tp>
-_CCCL_GLOBAL_CONSTANT _Tp log2e_v = __log2e<_Tp>::value;
+_CCCL_GLOBAL_CONSTANT _Tp log2e_v = __numbers<_Tp>::__log2e;
 template <class _Tp>
-_CCCL_GLOBAL_CONSTANT _Tp log10e_v = __log10e<_Tp>::value;
+_CCCL_GLOBAL_CONSTANT _Tp log10e_v = __numbers<_Tp>::__log10e;
 template <class _Tp>
-_CCCL_GLOBAL_CONSTANT _Tp pi_v = __pi<_Tp>::value;
+_CCCL_GLOBAL_CONSTANT _Tp pi_v = __numbers<_Tp>::__pi;
 template <class _Tp>
-_CCCL_GLOBAL_CONSTANT _Tp inv_pi_v = __inv_pi<_Tp>::value;
+_CCCL_GLOBAL_CONSTANT _Tp inv_pi_v = __numbers<_Tp>::__inv_pi;
 template <class _Tp>
-_CCCL_GLOBAL_CONSTANT _Tp inv_sqrtpi_v = __inv_sqrtpi<_Tp>::value;
+_CCCL_GLOBAL_CONSTANT _Tp inv_sqrtpi_v = __numbers<_Tp>::__inv_sqrtpi;
 template <class _Tp>
-_CCCL_GLOBAL_CONSTANT _Tp ln2_v = __ln2<_Tp>::value;
+_CCCL_GLOBAL_CONSTANT _Tp ln2_v = __numbers<_Tp>::__ln2;
 template <class _Tp>
-_CCCL_GLOBAL_CONSTANT _Tp ln10_v = __ln10<_Tp>::value;
+_CCCL_GLOBAL_CONSTANT _Tp ln10_v = __numbers<_Tp>::__ln10;
 template <class _Tp>
-_CCCL_GLOBAL_CONSTANT _Tp sqrt2_v = __sqrt2<_Tp>::value;
+_CCCL_GLOBAL_CONSTANT _Tp sqrt2_v = __numbers<_Tp>::__sqrt2;
 template <class _Tp>
-_CCCL_GLOBAL_CONSTANT _Tp sqrt3_v = __sqrt3<_Tp>::value;
+_CCCL_GLOBAL_CONSTANT _Tp sqrt3_v = __numbers<_Tp>::__sqrt3;
 template <class _Tp>
-_CCCL_GLOBAL_CONSTANT _Tp inv_sqrt3_v = __inv_sqrt3<_Tp>::value;
+_CCCL_GLOBAL_CONSTANT _Tp inv_sqrt3_v = __numbers<_Tp>::__inv_sqrt3;
 template <class _Tp>
-_CCCL_GLOBAL_CONSTANT _Tp egamma_v = __egamma<_Tp>::value;
+_CCCL_GLOBAL_CONSTANT _Tp egamma_v = __numbers<_Tp>::__egamma;
 template <class _Tp>
-_CCCL_GLOBAL_CONSTANT _Tp phi_v = __phi<_Tp>::value;
+_CCCL_GLOBAL_CONSTANT _Tp phi_v = __numbers<_Tp>::__phi;
 
 _CCCL_GLOBAL_CONSTANT double e          = e_v<double>;
 _CCCL_GLOBAL_CONSTANT double log2e      = log2e_v<double>;
@@ -374,9 +153,9 @@ _CCCL_GLOBAL_CONSTANT double inv_sqrt3  = inv_sqrt3_v<double>;
 _CCCL_GLOBAL_CONSTANT double egamma     = egamma_v<double>;
 _CCCL_GLOBAL_CONSTANT double phi        = phi_v<double>;
 
-#endif // !_CCCL_NO_VARIABLE_TEMPLATES
-
 } // namespace numbers
+
+#endif // !_CCCL_NO_VARIABLE_TEMPLATES
 
 _LIBCUDACXX_END_NAMESPACE_STD
 
