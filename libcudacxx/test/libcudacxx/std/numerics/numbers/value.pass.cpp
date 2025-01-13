@@ -85,9 +85,47 @@ __host__ __device__ constexpr bool test()
   return true;
 }
 
+// Extended floating point types are not comparable in constexpr context
+__host__ __device__ void test_ext_fp()
+{
+#if defined(_LIBCUDACXX_HAS_NVFP16)
+  // __half constants
+  assert(cuda::std::numbers::e_v<__half> == __half{2.71875});
+  assert(cuda::std::numbers::log2e_v<__half> == __half{1.4423828125});
+  assert(cuda::std::numbers::log10e_v<__half> == __half{0.434326171875});
+  assert(cuda::std::numbers::pi_v<__half> == __half{3.140625});
+  assert(cuda::std::numbers::inv_pi_v<__half> == __half{0.318359375});
+  assert(cuda::std::numbers::inv_sqrtpi_v<__half> == __half{0.56396484375});
+  assert(cuda::std::numbers::ln2_v<__half> == __half{0.693359375});
+  assert(cuda::std::numbers::ln10_v<__half> == __half{2.302734375});
+  assert(cuda::std::numbers::sqrt2_v<__half> == __half{1.4140625});
+  assert(cuda::std::numbers::sqrt3_v<__half> == __half{1.732421875});
+  assert(cuda::std::numbers::inv_sqrt3_v<__half> == __half{0.5771484375});
+  assert(cuda::std::numbers::egamma_v<__half> == __half{0.5771484375});
+  assert(cuda::std::numbers::phi_v<__half> == __half{1.6181640625});
+#endif // _LIBCUDACXX_HAS_NVFP16
+
+#if defined(_LIBCUDACXX_HAS_NVBF16)
+  assert(cuda::std::numbers::e_v<__nv_bfloat16> == __nv_bfloat16{2.71875f});
+  assert(cuda::std::numbers::log2e_v<__nv_bfloat16> == __nv_bfloat16{1.4453125f});
+  assert(cuda::std::numbers::log10e_v<__nv_bfloat16> == __nv_bfloat16{0.43359375f});
+  assert(cuda::std::numbers::pi_v<__nv_bfloat16> == __nv_bfloat16{3.140625f});
+  assert(cuda::std::numbers::inv_pi_v<__nv_bfloat16> == __nv_bfloat16{0.318359375f});
+  assert(cuda::std::numbers::inv_sqrtpi_v<__nv_bfloat16> == __nv_bfloat16{0.5625f});
+  assert(cuda::std::numbers::ln2_v<__nv_bfloat16> == __nv_bfloat16{0.69140625f});
+  assert(cuda::std::numbers::ln10_v<__nv_bfloat16> == __nv_bfloat16{2.296875f});
+  assert(cuda::std::numbers::sqrt2_v<__nv_bfloat16> == __nv_bfloat16{1.4140625f});
+  assert(cuda::std::numbers::sqrt3_v<__nv_bfloat16> == __nv_bfloat16{1.734375f});
+  assert(cuda::std::numbers::inv_sqrt3_v<__nv_bfloat16> == __nv_bfloat16{0.578125f});
+  assert(cuda::std::numbers::egamma_v<__nv_bfloat16> == __nv_bfloat16{0.578125f});
+  assert(cuda::std::numbers::phi_v<__nv_bfloat16> == __nv_bfloat16{1.6171875f});
+#endif // _LIBCUDACXX_HAS_NVBF16
+}
+
 int main(int, char**)
 {
   test();
+  test_ext_fp();
   static_assert(test(), "");
   return 0;
 }

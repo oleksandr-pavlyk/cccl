@@ -26,6 +26,26 @@ __host__ __device__ constexpr bool test_defined(const T& value)
   return true;
 }
 
+template <class T>
+__host__ __device__ constexpr bool test_type()
+{
+  test_defined<T>(cuda::std::numbers::e_v<T>);
+  test_defined<T>(cuda::std::numbers::log2e_v<T>);
+  test_defined<T>(cuda::std::numbers::log10e_v<T>);
+  test_defined<T>(cuda::std::numbers::pi_v<T>);
+  test_defined<T>(cuda::std::numbers::inv_pi_v<T>);
+  test_defined<T>(cuda::std::numbers::inv_sqrtpi_v<T>);
+  test_defined<T>(cuda::std::numbers::ln2_v<T>);
+  test_defined<T>(cuda::std::numbers::ln10_v<T>);
+  test_defined<T>(cuda::std::numbers::sqrt2_v<T>);
+  test_defined<T>(cuda::std::numbers::sqrt3_v<T>);
+  test_defined<T>(cuda::std::numbers::inv_sqrt3_v<T>);
+  test_defined<T>(cuda::std::numbers::egamma_v<T>);
+  test_defined<T>(cuda::std::numbers::phi_v<T>);
+
+  return true;
+}
+
 __host__ __device__ constexpr bool test()
 {
   test_defined<double>(cuda::std::numbers::e);
@@ -42,49 +62,17 @@ __host__ __device__ constexpr bool test()
   test_defined<double>(cuda::std::numbers::egamma);
   test_defined<double>(cuda::std::numbers::phi);
 
-  test_defined<float>(cuda::std::numbers::e_v<float>);
-  test_defined<float>(cuda::std::numbers::log2e_v<float>);
-  test_defined<float>(cuda::std::numbers::log10e_v<float>);
-  test_defined<float>(cuda::std::numbers::pi_v<float>);
-  test_defined<float>(cuda::std::numbers::inv_pi_v<float>);
-  test_defined<float>(cuda::std::numbers::inv_sqrtpi_v<float>);
-  test_defined<float>(cuda::std::numbers::ln2_v<float>);
-  test_defined<float>(cuda::std::numbers::ln10_v<float>);
-  test_defined<float>(cuda::std::numbers::sqrt2_v<float>);
-  test_defined<float>(cuda::std::numbers::sqrt3_v<float>);
-  test_defined<float>(cuda::std::numbers::inv_sqrt3_v<float>);
-  test_defined<float>(cuda::std::numbers::egamma_v<float>);
-  test_defined<float>(cuda::std::numbers::phi_v<float>);
-
-  test_defined<double>(cuda::std::numbers::e_v<double>);
-  test_defined<double>(cuda::std::numbers::log2e_v<double>);
-  test_defined<double>(cuda::std::numbers::log10e_v<double>);
-  test_defined<double>(cuda::std::numbers::pi_v<double>);
-  test_defined<double>(cuda::std::numbers::inv_pi_v<double>);
-  test_defined<double>(cuda::std::numbers::inv_sqrtpi_v<double>);
-  test_defined<double>(cuda::std::numbers::ln2_v<double>);
-  test_defined<double>(cuda::std::numbers::ln10_v<double>);
-  test_defined<double>(cuda::std::numbers::sqrt2_v<double>);
-  test_defined<double>(cuda::std::numbers::sqrt3_v<double>);
-  test_defined<double>(cuda::std::numbers::inv_sqrt3_v<double>);
-  test_defined<double>(cuda::std::numbers::egamma_v<double>);
-  test_defined<double>(cuda::std::numbers::phi_v<double>);
-
+  test_type<float>();
+  test_type<double>();
 #if !defined(_LIBCUDACXX_HAS_NO_LONG_DOUBLE)
-  test_defined<long double>(cuda::std::numbers::e_v<long double>);
-  test_defined<long double>(cuda::std::numbers::log2e_v<long double>);
-  test_defined<long double>(cuda::std::numbers::log10e_v<long double>);
-  test_defined<long double>(cuda::std::numbers::pi_v<long double>);
-  test_defined<long double>(cuda::std::numbers::inv_pi_v<long double>);
-  test_defined<long double>(cuda::std::numbers::inv_sqrtpi_v<long double>);
-  test_defined<long double>(cuda::std::numbers::ln2_v<long double>);
-  test_defined<long double>(cuda::std::numbers::ln10_v<long double>);
-  test_defined<long double>(cuda::std::numbers::sqrt2_v<long double>);
-  test_defined<long double>(cuda::std::numbers::sqrt3_v<long double>);
-  test_defined<long double>(cuda::std::numbers::inv_sqrt3_v<long double>);
-  test_defined<long double>(cuda::std::numbers::egamma_v<long double>);
-  test_defined<long double>(cuda::std::numbers::phi_v<long double>);
+  test_type<long double>();
 #endif // !defined(_LIBCUDACXX_NO_LONG_DOUBLE)
+#if defined(_LIBCUDACXX_HAS_NVFP16)
+  test_type<__half>();
+#endif // _LIBCUDACXX_HAS_NVFP16
+#if defined(_LIBCUDACXX_HAS_NVBF16)
+  test_type<__nv_bfloat16>();
+#endif // _LIBCUDACXX_HAS_NVBF16
 
   return true;
 }
