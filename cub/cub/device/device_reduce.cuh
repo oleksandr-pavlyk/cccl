@@ -51,8 +51,9 @@
 
 #include <thrust/iterator/tabulate_output_iterator.h>
 
+#include <cuda/std/limits>
+
 #include <iterator>
-#include <limits>
 
 CUB_NAMESPACE_BEGIN
 
@@ -434,10 +435,7 @@ struct DeviceReduce
       d_out,
       static_cast<OffsetT>(num_items),
       ::cuda::minimum<>{},
-      // replace with
-      // std::numeric_limits<T>::max() when
-      // C++11 support is more prevalent
-      Traits<InitT>::Max(),
+      ::cuda::std::numeric_limits<InitT>::max(),
       stream);
   }
 
@@ -694,7 +692,7 @@ struct DeviceReduce
 
     // Initial value
     // TODO Address https://github.com/NVIDIA/cub/issues/651
-    InitT initial_value{AccumT(1, Traits<InputValueT>::Max())};
+    InitT initial_value{AccumT(1, ::cuda::std::numeric_limits<InputValueT>::max())};
 
     return DispatchReduce<ArgIndexInputIteratorT, OutputIteratorT, OffsetT, cub::ArgMin, InitT, AccumT>::Dispatch(
       d_temp_storage, temp_storage_bytes, d_indexed_in, d_out, num_items, cub::ArgMin(), initial_value, stream);
@@ -803,7 +801,7 @@ struct DeviceReduce
       // std::numeric_limits<T>::lowest()
       // when C++11 support is more
       // prevalent
-      Traits<InitT>::Lowest(),
+      ::cuda::std::numeric_limits<InitT>::lowest(),
       stream);
   }
 
@@ -1064,7 +1062,7 @@ struct DeviceReduce
 
     // Initial value
     // TODO Address https://github.com/NVIDIA/cub/issues/651
-    InitT initial_value{AccumT(1, Traits<InputValueT>::Lowest())};
+    InitT initial_value{AccumT(1, ::cuda::std::numeric_limits<InputValueT>::lowest())};
 
     return DispatchReduce<ArgIndexInputIteratorT, OutputIteratorT, OffsetT, cub::ArgMax, InitT, AccumT>::Dispatch(
       d_temp_storage, temp_storage_bytes, d_indexed_in, d_out, num_items, cub::ArgMax(), initial_value, stream);

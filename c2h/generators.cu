@@ -40,7 +40,7 @@
 #include <thrust/scan.h>
 #include <thrust/tabulate.h>
 
-#include <cuda/std/type_traits>
+#include <cuda/type_traits>
 
 #include <cstdint>
 
@@ -118,30 +118,7 @@ private:
   c2h::device_vector<float> m_distribution;
 };
 
-// TODO(bgruber): modelled after cub::Traits. We should generalize this somewhere into libcu++.
-template <typename T>
-struct is_floating_point : ::cuda::std::is_floating_point<T>
-{};
-#ifdef _CCCL_HAS_NVFP16
-template <>
-struct is_floating_point<__half> : ::cuda::std::true_type
-{};
-#endif // _CCCL_HAS_NVFP16
-#ifdef _CCCL_HAS_NVBF16
-template <>
-struct is_floating_point<__nv_bfloat16> : ::cuda::std::true_type
-{};
-#endif // _CCCL_HAS_NVBF16
-#ifdef __CUDA_FP8_TYPES_EXIST__
-template <>
-struct is_floating_point<__nv_fp8_e4m3> : ::cuda::std::true_type
-{};
-template <>
-struct is_floating_point<__nv_fp8_e5m2> : ::cuda::std::true_type
-{};
-#endif // __CUDA_FP8_TYPES_EXIST__
-
-template <typename T, bool = is_floating_point<T>::value>
+template <typename T, bool = ::cuda::is_floating_point_v<T>>
 struct random_to_item_t
 {
   float m_min;

@@ -178,13 +178,12 @@ public:
 
 } // namespace c2h
 
-namespace std
-{
+_LIBCUDACXX_BEGIN_NAMESPACE_STD
 template <template <typename> class... Policies>
 class numeric_limits<c2h::custom_type_t<Policies...>>
 {
 public:
-  static c2h::custom_type_t<Policies...> max()
+  static __host__ __device__ c2h::custom_type_t<Policies...> max()
   {
     c2h::custom_type_t<Policies...> val;
     val.key = std::numeric_limits<std::size_t>::max();
@@ -192,7 +191,7 @@ public:
     return val;
   }
 
-  static c2h::custom_type_t<Policies...> min()
+  static __host__ __device__ c2h::custom_type_t<Policies...> min()
   {
     c2h::custom_type_t<Policies...> val;
     val.key = std::numeric_limits<std::size_t>::min();
@@ -200,7 +199,7 @@ public:
     return val;
   }
 
-  static c2h::custom_type_t<Policies...> lowest()
+  static __host__ __device__ c2h::custom_type_t<Policies...> lowest()
   {
     c2h::custom_type_t<Policies...> val;
     val.key = std::numeric_limits<std::size_t>::lowest();
@@ -208,4 +207,4 @@ public:
     return val;
   }
 };
-} // namespace std
+_LIBCUDACXX_END_NAMESPACE_STD

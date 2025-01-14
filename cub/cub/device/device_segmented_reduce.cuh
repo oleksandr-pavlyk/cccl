@@ -49,6 +49,7 @@
 #include <cub/iterator/arg_index_input_iterator.cuh>
 #include <cub/util_type.cuh>
 
+#include <cuda/std/limits>
 #include <cuda/std/type_traits>
 
 #include <iterator>
@@ -508,10 +509,7 @@ public:
       d_begin_offsets,
       d_end_offsets,
       ::cuda::minimum<>{},
-      Traits<InputT>::Max(), // replace with
-                             // std::numeric_limits<T>::max()
-                             // when C++11 support is
-                             // more prevalent
+      ::cuda::std::numeric_limits<InputT>::max(),
       stream);
   }
 
@@ -639,7 +637,7 @@ public:
 
     // Initial value
     // TODO Address https://github.com/NVIDIA/cub/issues/651
-    InitT initial_value{AccumT(1, Traits<InputValueT>::Max())};
+    InitT initial_value{AccumT(1, ::cuda::std::numeric_limits<InputValueT>::max())};
 
     using integral_offset_check = ::cuda::std::is_integral<OffsetT>;
     static_assert(integral_offset_check::value, "Offset iterator value type should be integral.");
@@ -773,10 +771,7 @@ public:
       d_begin_offsets,
       d_end_offsets,
       ::cuda::maximum<>{},
-      Traits<InputT>::Lowest(), // replace with
-                                // std::numeric_limits<T>::lowest()
-                                // when C++11 support is
-                                // more prevalent
+      ::cuda::std::numeric_limits<InputT>::lowest(),
       stream);
   }
 
@@ -907,7 +902,7 @@ public:
 
     // Initial value
     // TODO Address https://github.com/NVIDIA/cub/issues/651
-    InitT initial_value{AccumT(1, Traits<InputValueT>::Lowest())};
+    InitT initial_value{AccumT(1, ::cuda::std::numeric_limits<InputValueT>::lowest())};
 
     using integral_offset_check = ::cuda::std::is_integral<OffsetT>;
     static_assert(integral_offset_check::value, "Offset iterator value type should be integral.");

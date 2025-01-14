@@ -37,6 +37,7 @@
 
 #include <cub/util_type.cuh>
 
+#include <cuda/std/limits>
 #include <cuda/std/type_traits>
 
 #include <cstdint>
@@ -306,6 +307,10 @@ struct half_t
   }
 };
 
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
+
 /******************************************************************************
  * I/O stream overloads
  ******************************************************************************/
@@ -324,28 +329,33 @@ inline std::ostream& operator<<(std::ostream& out, const __half& x)
 }
 
 /******************************************************************************
- * Traits overloads
+ * limits
  ******************************************************************************/
 
+_LIBCUDACXX_BEGIN_NAMESPACE_STD
 template <>
-struct CUB_NS_QUALIFIER::FpLimits<half_t>
+class numeric_limits<half_t>
 {
-  static __host__ __device__ __forceinline__ half_t Max()
+public:
+  static __host__ __device__ __forceinline__ half_t max()
   {
     return (half_t::max)();
   }
 
-  static __host__ __device__ __forceinline__ half_t Lowest()
+  static __host__ __device__ __forceinline__ half_t lowest()
   {
     return half_t::lowest();
   }
 };
+_LIBCUDACXX_END_NAMESPACE_STD
 
 template <>
-struct CUB_NS_QUALIFIER::NumericTraits<half_t>
-    : CUB_NS_QUALIFIER::BaseTraits<FLOATING_POINT, true, false, unsigned short, half_t>
-{};
+struct CUB_NS_QUALIFIER::detail::unsigned_bits<half_t, void>
+{
+  using type = unsigned short;
+};
 
-#ifdef __GNUC__
-#  pragma GCC diagnostic pop
-#endif
+// template <>
+// struct CUB_NS_QUALIFIER::detail::NumericTraits<half_t>
+//     : CUB_NS_QUALIFIER::detail::BaseTraits<FLOATING_POINT, true, false, unsigned short, half_t>
+// {};

@@ -211,6 +211,10 @@ struct bfloat16_t
   }
 };
 
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
+
 /******************************************************************************
  * I/O stream overloads
  ******************************************************************************/
@@ -229,28 +233,28 @@ inline std::ostream& operator<<(std::ostream& out, const __nv_bfloat16& x)
 }
 
 /******************************************************************************
- * Traits overloads
+ * limits
  ******************************************************************************/
 
+_LIBCUDACXX_BEGIN_NAMESPACE_STD
 template <>
-struct CUB_NS_QUALIFIER::FpLimits<bfloat16_t>
+class numeric_limits<bfloat16_t>
 {
-  static __host__ __device__ __forceinline__ bfloat16_t Max()
+public:
+  static __host__ __device__ __forceinline__ bfloat16_t max()
   {
     return bfloat16_t::max();
   }
 
-  static __host__ __device__ __forceinline__ bfloat16_t Lowest()
+  static __host__ __device__ __forceinline__ bfloat16_t lowest()
   {
     return bfloat16_t::lowest();
   }
 };
+_LIBCUDACXX_END_NAMESPACE_STD
 
 template <>
-struct CUB_NS_QUALIFIER::NumericTraits<bfloat16_t>
-    : CUB_NS_QUALIFIER::BaseTraits<FLOATING_POINT, true, false, unsigned short, bfloat16_t>
-{};
-
-#ifdef __GNUC__
-#  pragma GCC diagnostic pop
-#endif
+struct CUB_NS_QUALIFIER::detail::unsigned_bits<bfloat16_t, void>
+{
+  using type = unsigned short;
+};

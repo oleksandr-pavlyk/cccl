@@ -29,6 +29,8 @@
 
 #include <thrust/detail/config/device_system.h>
 
+#include <cuda/std/limits>
+
 #include <iostream>
 
 /******************************************************************************
@@ -288,123 +290,221 @@ C2H_VEC_OVERLOAD(float, float)
 C2H_VEC_OVERLOAD(double, double)
 
 /*
- * The following section defines macros to overload cub::NumericTraits<T>::{Max,Lowest}() for vector
+ * The following section defines macros to specialize cub::NumericTraits<T>::{Max,Lowest}() for vector
  * types.
  */
 
 /**
  * Vector1 overloads
  */
-#  define C2H_VEC_1_TRAITS_OVERLOAD(T, BaseT)            \
-    CUB_NAMESPACE_BEGIN                                  \
-    template <>                                          \
-    struct NumericTraits<T>                              \
-    {                                                    \
-      static constexpr Category CATEGORY = NOT_A_NUMBER; \
-      enum                                               \
-      {                                                  \
-        PRIMITIVE = false,                               \
-        NULL_TYPE = false,                               \
-      };                                                 \
-      static __host__ __device__ T Max()                 \
-      {                                                  \
-        T retval = {NumericTraits<BaseT>::Max()};        \
-        return retval;                                   \
-      }                                                  \
-      static __host__ __device__ T Lowest()              \
-      {                                                  \
-        T retval = {NumericTraits<BaseT>::Lowest()};     \
-        return retval;                                   \
-      }                                                  \
-    };                                                   \
-    CUB_NAMESPACE_END
+#  define C2H_VEC_1_TRAITS_OVERLOAD(T, BaseT)                      \
+    CUB_NAMESPACE_BEGIN                                            \
+    namespace detail                                               \
+    {                                                              \
+    template <>                                                    \
+    struct NumericTraits<T>                                        \
+    {                                                              \
+      static constexpr Category CATEGORY = NOT_A_NUMBER;           \
+      enum                                                         \
+      {                                                            \
+        PRIMITIVE = false,                                         \
+        NULL_TYPE = false,                                         \
+      };                                                           \
+      static __host__ __device__ T Max()                           \
+      {                                                            \
+        T retval = {::cuda::std::numeric_limits<BaseT>::max()};    \
+        return retval;                                             \
+      }                                                            \
+      static __host__ __device__ T Lowest()                        \
+      {                                                            \
+        T retval = {::cuda::std::numeric_limits<BaseT>::lowest()}; \
+        return retval;                                             \
+      }                                                            \
+    };                                                             \
+    }                                                              \
+    CUB_NAMESPACE_END                                              \
+    _LIBCUDACXX_BEGIN_NAMESPACE_STD                                \
+    template <>                                                    \
+    class numeric_limits<T>                                        \
+    {                                                              \
+    public:                                                        \
+      static constexpr bool is_specialized = true;                 \
+      static __host__ __device__ T max()                           \
+      {                                                            \
+        T retval = {::cuda::std::numeric_limits<BaseT>::max()};    \
+        return retval;                                             \
+      }                                                            \
+      static __host__ __device__ T lowest()                        \
+      {                                                            \
+        T retval = {::cuda::std::numeric_limits<BaseT>::lowest()}; \
+        return retval;                                             \
+      }                                                            \
+    };                                                             \
+    _LIBCUDACXX_END_NAMESPACE_STD
 
 /**
  * Vector2 overloads
  */
-#  define C2H_VEC_2_TRAITS_OVERLOAD(T, BaseT)                                        \
-    CUB_NAMESPACE_BEGIN                                                              \
-    template <>                                                                      \
-    struct NumericTraits<T>                                                          \
-    {                                                                                \
-      static constexpr Category CATEGORY = NOT_A_NUMBER;                             \
-      enum                                                                           \
-      {                                                                              \
-        PRIMITIVE = false,                                                           \
-        NULL_TYPE = false,                                                           \
-      };                                                                             \
-      static __host__ __device__ T Max()                                             \
-      {                                                                              \
-        T retval = {NumericTraits<BaseT>::Max(), NumericTraits<BaseT>::Max()};       \
-        return retval;                                                               \
-      }                                                                              \
-      static __host__ __device__ T Lowest()                                          \
-      {                                                                              \
-        T retval = {NumericTraits<BaseT>::Lowest(), NumericTraits<BaseT>::Lowest()}; \
-        return retval;                                                               \
-      }                                                                              \
-    };                                                                               \
-    CUB_NAMESPACE_END
+#  define C2H_VEC_2_TRAITS_OVERLOAD(T, BaseT)                                                                    \
+    CUB_NAMESPACE_BEGIN                                                                                          \
+    namespace detail                                                                                             \
+    {                                                                                                            \
+    template <>                                                                                                  \
+    struct NumericTraits<T>                                                                                      \
+    {                                                                                                            \
+      static constexpr Category CATEGORY = NOT_A_NUMBER;                                                         \
+      enum                                                                                                       \
+      {                                                                                                          \
+        PRIMITIVE = false,                                                                                       \
+        NULL_TYPE = false,                                                                                       \
+      };                                                                                                         \
+      static __host__ __device__ T Max()                                                                         \
+      {                                                                                                          \
+        T retval = {::cuda::std::numeric_limits<BaseT>::max(), ::cuda::std::numeric_limits<BaseT>::max()};       \
+        return retval;                                                                                           \
+      }                                                                                                          \
+      static __host__ __device__ T Lowest()                                                                      \
+      {                                                                                                          \
+        T retval = {::cuda::std::numeric_limits<BaseT>::lowest(), ::cuda::std::numeric_limits<BaseT>::lowest()}; \
+        return retval;                                                                                           \
+      }                                                                                                          \
+    };                                                                                                           \
+    }                                                                                                            \
+    CUB_NAMESPACE_END                                                                                            \
+    _LIBCUDACXX_BEGIN_NAMESPACE_STD                                                                              \
+    template <>                                                                                                  \
+    class numeric_limits<T>                                                                                      \
+    {                                                                                                            \
+    public:                                                                                                      \
+      static constexpr bool is_specialized = true;                                                               \
+      static __host__ __device__ T max()                                                                         \
+      {                                                                                                          \
+        T retval = {::cuda::std::numeric_limits<BaseT>::max(), ::cuda::std::numeric_limits<BaseT>::max()};       \
+        return retval;                                                                                           \
+      }                                                                                                          \
+      static __host__ __device__ T lowest()                                                                      \
+      {                                                                                                          \
+        T retval = {::cuda::std::numeric_limits<BaseT>::lowest(), ::cuda::std::numeric_limits<BaseT>::lowest()}; \
+        return retval;                                                                                           \
+      }                                                                                                          \
+    };                                                                                                           \
+    _LIBCUDACXX_END_NAMESPACE_STD
 
 /**
  * Vector3 overloads
  */
-#  define C2H_VEC_3_TRAITS_OVERLOAD(T, BaseT)                                                                        \
-    CUB_NAMESPACE_BEGIN                                                                                              \
-    template <>                                                                                                      \
-    struct NumericTraits<T>                                                                                          \
-    {                                                                                                                \
-      static constexpr Category CATEGORY = NOT_A_NUMBER;                                                             \
-      enum                                                                                                           \
-      {                                                                                                              \
-        PRIMITIVE = false,                                                                                           \
-        NULL_TYPE = false,                                                                                           \
-      };                                                                                                             \
-      static __host__ __device__ T Max()                                                                             \
-      {                                                                                                              \
-        T retval = {NumericTraits<BaseT>::Max(), NumericTraits<BaseT>::Max(), NumericTraits<BaseT>::Max()};          \
-        return retval;                                                                                               \
-      }                                                                                                              \
-      static __host__ __device__ T Lowest()                                                                          \
-      {                                                                                                              \
-        T retval = {NumericTraits<BaseT>::Lowest(), NumericTraits<BaseT>::Lowest(), NumericTraits<BaseT>::Lowest()}; \
-        return retval;                                                                                               \
-      }                                                                                                              \
-    };                                                                                                               \
-    CUB_NAMESPACE_END
+#  define C2H_VEC_3_TRAITS_OVERLOAD(T, BaseT)                      \
+    CUB_NAMESPACE_BEGIN                                            \
+    namespace detail                                               \
+    {                                                              \
+    template <>                                                    \
+    struct NumericTraits<T>                                        \
+    {                                                              \
+      static constexpr Category CATEGORY = NOT_A_NUMBER;           \
+      enum                                                         \
+      {                                                            \
+        PRIMITIVE = false,                                         \
+        NULL_TYPE = false,                                         \
+      };                                                           \
+      static __host__ __device__ T Max()                           \
+      {                                                            \
+        T retval = {::cuda::std::numeric_limits<BaseT>::max(),     \
+                    ::cuda::std::numeric_limits<BaseT>::max(),     \
+                    ::cuda::std::numeric_limits<BaseT>::max()};    \
+        return retval;                                             \
+      }                                                            \
+      static __host__ __device__ T Lowest()                        \
+      {                                                            \
+        T retval = {::cuda::std::numeric_limits<BaseT>::lowest(),  \
+                    ::cuda::std::numeric_limits<BaseT>::lowest(),  \
+                    ::cuda::std::numeric_limits<BaseT>::lowest()}; \
+        return retval;                                             \
+      }                                                            \
+    };                                                             \
+    }                                                              \
+    CUB_NAMESPACE_END                                              \
+    _LIBCUDACXX_BEGIN_NAMESPACE_STD                                \
+    template <>                                                    \
+    class numeric_limits<T>                                        \
+    {                                                              \
+    public:                                                        \
+      static constexpr bool is_specialized = true;                 \
+      static __host__ __device__ T max()                           \
+      {                                                            \
+        T retval = {::cuda::std::numeric_limits<BaseT>::max(),     \
+                    ::cuda::std::numeric_limits<BaseT>::max(),     \
+                    ::cuda::std::numeric_limits<BaseT>::max()};    \
+        return retval;                                             \
+      }                                                            \
+      static __host__ __device__ T lowest()                        \
+      {                                                            \
+        T retval = {::cuda::std::numeric_limits<BaseT>::lowest(),  \
+                    ::cuda::std::numeric_limits<BaseT>::lowest(),  \
+                    ::cuda::std::numeric_limits<BaseT>::lowest()}; \
+        return retval;                                             \
+      }                                                            \
+    };                                                             \
+    _LIBCUDACXX_END_NAMESPACE_STD
 
 /**
  * Vector4 overloads
  */
-#  define C2H_VEC_4_TRAITS_OVERLOAD(T, BaseT)            \
-    CUB_NAMESPACE_BEGIN                                  \
-    template <>                                          \
-    struct NumericTraits<T>                              \
-    {                                                    \
-      static constexpr Category CATEGORY = NOT_A_NUMBER; \
-      enum                                               \
-      {                                                  \
-        PRIMITIVE = false,                               \
-        NULL_TYPE = false,                               \
-      };                                                 \
-      static __host__ __device__ T Max()                 \
-      {                                                  \
-        T retval = {NumericTraits<BaseT>::Max(),         \
-                    NumericTraits<BaseT>::Max(),         \
-                    NumericTraits<BaseT>::Max(),         \
-                    NumericTraits<BaseT>::Max()};        \
-        return retval;                                   \
-      }                                                  \
-      static __host__ __device__ T Lowest()              \
-      {                                                  \
-        T retval = {NumericTraits<BaseT>::Lowest(),      \
-                    NumericTraits<BaseT>::Lowest(),      \
-                    NumericTraits<BaseT>::Lowest(),      \
-                    NumericTraits<BaseT>::Lowest()};     \
-        return retval;                                   \
-      }                                                  \
-    };                                                   \
-    CUB_NAMESPACE_END
+#  define C2H_VEC_4_TRAITS_OVERLOAD(T, BaseT)                      \
+    CUB_NAMESPACE_BEGIN                                            \
+    namespace detail                                               \
+    {                                                              \
+    template <>                                                    \
+    struct NumericTraits<T>                                        \
+    {                                                              \
+      static constexpr Category CATEGORY = NOT_A_NUMBER;           \
+      enum                                                         \
+      {                                                            \
+        PRIMITIVE = false,                                         \
+        NULL_TYPE = false,                                         \
+      };                                                           \
+      static __host__ __device__ T Max()                           \
+      {                                                            \
+        T retval = {::cuda::std::numeric_limits<BaseT>::max(),     \
+                    ::cuda::std::numeric_limits<BaseT>::max(),     \
+                    ::cuda::std::numeric_limits<BaseT>::max(),     \
+                    ::cuda::std::numeric_limits<BaseT>::max()};    \
+        return retval;                                             \
+      }                                                            \
+      static __host__ __device__ T Lowest()                        \
+      {                                                            \
+        T retval = {::cuda::std::numeric_limits<BaseT>::lowest(),  \
+                    ::cuda::std::numeric_limits<BaseT>::lowest(),  \
+                    ::cuda::std::numeric_limits<BaseT>::lowest(),  \
+                    ::cuda::std::numeric_limits<BaseT>::lowest()}; \
+        return retval;                                             \
+      }                                                            \
+    };                                                             \
+    }                                                              \
+    CUB_NAMESPACE_END                                              \
+    _LIBCUDACXX_BEGIN_NAMESPACE_STD                                \
+    template <>                                                    \
+    class numeric_limits<T>                                        \
+    {                                                              \
+    public:                                                        \
+      static constexpr bool is_specialized = true;                 \
+      static __host__ __device__ T max()                           \
+      {                                                            \
+        T retval = {::cuda::std::numeric_limits<BaseT>::max(),     \
+                    ::cuda::std::numeric_limits<BaseT>::max(),     \
+                    ::cuda::std::numeric_limits<BaseT>::max(),     \
+                    ::cuda::std::numeric_limits<BaseT>::max()};    \
+        return retval;                                             \
+      }                                                            \
+      static __host__ __device__ T lowest()                        \
+      {                                                            \
+        T retval = {::cuda::std::numeric_limits<BaseT>::lowest(),  \
+                    ::cuda::std::numeric_limits<BaseT>::lowest(),  \
+                    ::cuda::std::numeric_limits<BaseT>::lowest(),  \
+                    ::cuda::std::numeric_limits<BaseT>::lowest()}; \
+        return retval;                                             \
+      }                                                            \
+    };                                                             \
+    _LIBCUDACXX_END_NAMESPACE_STD
 
 /**
  * All vector overloads
