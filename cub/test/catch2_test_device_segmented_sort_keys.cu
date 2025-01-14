@@ -178,8 +178,6 @@ C2H_TEST("DeviceSegmentedSortKeys: Unspecified segments, random keys", "[keys][s
   test_unspecified_segments_random<KeyT>(C2H_SEED(4));
 }
 
-#if defined(CCCL_TEST_ENABLE_LARGE_SEGMENTED_SORT)
-
 C2H_TEST("DeviceSegmentedSortKeys: very large number of segments", "[keys][segmented][sort][device]", all_offset_types)
 try
 {
