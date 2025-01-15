@@ -52,6 +52,8 @@
 #include <cuda/ptx>
 
 CUB_NAMESPACE_BEGIN
+
+CUB_NAMESPACE_BEGIN
 namespace detail
 {
 /**
