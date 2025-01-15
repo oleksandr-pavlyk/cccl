@@ -140,7 +140,7 @@ struct inclusive_scan_fn final
               typename Sentinel,
               typename OutputIt,
               typename BinaryOp,
-              typename = std::enable_if_t<!is_execution_policy_v<::cuda::std::remove_cvref_t<ForwardIt>>>>
+              typename = std::enable_if_t<!is_execution_policy_v<remove_cvref_t<ForwardIt>>>>
     CCCL_DEPRECATED _CCCL_SUPPRESS_DEPRECATED_PUSH
     auto operator()(ForwardIt&& first, Sentinel&& last, OutputIt&& out, BinaryOp&& op) const
     // ADL dispatch.
@@ -169,7 +169,7 @@ struct inclusive_scan_fn final
               typename OutputIt,
               typename InitialValueType,
               typename BinaryOp,
-              typename = std::enable_if_t<!is_execution_policy_v<::cuda::std::remove_cvref_t<ForwardIt>>>>
+              typename = std::enable_if_t<!is_execution_policy_v<remove_cvref_t<ForwardIt>>>>
     CCCL_DEPRECATED _CCCL_SUPPRESS_DEPRECATED_PUSH
     auto operator()(ForwardIt&& first, Sentinel&& last, OutputIt&& out, InitialValueType&& init, BinaryOp&& op) const
     // ADL dispatch.
@@ -249,7 +249,7 @@ struct exclusive_scan_fn final
       THRUST_FWD(first),
       THRUST_FWD(last),
       THRUST_FWD(out),
-      iterator_value_t<::cuda::std::remove_cvref_t<ForwardIt>>{},
+      iterator_value_t<remove_cvref_t<ForwardIt>>{},
       thrust::plus<>{})) _CCCL_SUPPRESS_DEPRECATED_POP
 
     template <typename ForwardIt,
@@ -257,7 +257,7 @@ struct exclusive_scan_fn final
               typename OutputIt,
               typename InitialValueType,
               typename BinaryOp,
-              typename = std::enable_if_t<!is_execution_policy_v<::cuda::std::remove_cvref_t<ForwardIt>>>>
+              typename = std::enable_if_t<!is_execution_policy_v<remove_cvref_t<ForwardIt>>>>
     CCCL_DEPRECATED _CCCL_SUPPRESS_DEPRECATED_PUSH
     auto operator()(ForwardIt&& first, Sentinel&& last, OutputIt&& out, InitialValueType&& init, BinaryOp&& op) const
     // ADL dispatch.
@@ -274,7 +274,7 @@ struct exclusive_scan_fn final
               typename Sentinel,
               typename OutputIt,
               typename InitialValueType,
-              typename = std::enable_if_t<!is_execution_policy_v<::cuda::std::remove_cvref_t<ForwardIt>>>>
+              typename = std::enable_if_t<!is_execution_policy_v<remove_cvref_t<ForwardIt>>>>
     CCCL_DEPRECATED _CCCL_SUPPRESS_DEPRECATED_PUSH
     auto operator()(ForwardIt&& first, Sentinel&& last, OutputIt&& out, InitialValueType&& init) const
     // ADL dispatch.
@@ -297,7 +297,7 @@ struct exclusive_scan_fn final
       THRUST_FWD(first),
       THRUST_FWD(last),
       THRUST_FWD(out),
-      iterator_value_t<::cuda::std::remove_cvref_t<ForwardIt>>{},
+      iterator_value_t<remove_cvref_t<ForwardIt>>{},
       thrust::plus<>{})) _CCCL_SUPPRESS_DEPRECATED_POP
 };
 

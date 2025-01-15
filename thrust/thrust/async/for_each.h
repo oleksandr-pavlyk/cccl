@@ -82,7 +82,7 @@ struct for_each_fn final
 
     template <typename ForwardIt, typename Sentinel, typename UnaryFunction>
     _CCCL_HOST static auto call(ForwardIt&& first, Sentinel&& last, UnaryFunction&& f) THRUST_RETURNS(for_each_fn::call(
-      thrust::detail::select_system(typename iterator_system<::cuda::std::remove_cvref_t<ForwardIt>>::type{}),
+      thrust::detail::select_system(typename iterator_system<remove_cvref_t<ForwardIt>>::type{}),
       THRUST_FWD(first),
       THRUST_FWD(last),
       THRUST_FWD(f)))
