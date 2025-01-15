@@ -214,6 +214,17 @@ struct numeric_limits<custom_numeric> : numeric_limits<int>
 {};
 _LIBCUDACXX_END_NAMESPACE_STD
 
+THRUST_NAMESPACE_BEGIN
+namespace detail
+{
+// For random number generation
+template <>
+struct numeric_limits<custom_numeric> : numeric_limits<int>
+{};
+
+} // namespace detail
+THRUST_NAMESPACE_END
+
 using NumericTypes = unittest::type_list<
   char,
   signed char,
