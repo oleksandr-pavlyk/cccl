@@ -76,48 +76,48 @@ struct _CCCL_TYPE_VISIBILITY_DEFAULT __is_arithmetic_integral
 #else // ^^^ _CCCL_NO_VARIABLE_TEMPLATES ^^^ / vvv !_CCCL_NO_VARIABLE_TEMPLATES vvv
 
 template <class _Tp>
-_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_v_impl = false;
+_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_impl_v = false;
 
 template <>
-_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_v_impl<signed char> = true;
+_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_impl_v<signed char> = true;
 
 template <>
-_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_v_impl<unsigned char> = true;
+_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_impl_v<unsigned char> = true;
 
 template <>
-_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_v_impl<short> = true;
+_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_impl_v<short> = true;
 
 template <>
-_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_v_impl<unsigned short> = true;
+_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_impl_v<unsigned short> = true;
 
 template <>
-_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_v_impl<int> = true;
+_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_impl_v<int> = true;
 
 template <>
-_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_v_impl<unsigned int> = true;
+_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_impl_v<unsigned int> = true;
 
 template <>
-_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_v_impl<long> = true;
+_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_impl_v<long> = true;
 
 template <>
-_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_v_impl<unsigned long> = true;
+_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_impl_v<unsigned long> = true;
 
 template <>
-_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_v_impl<long long> = true;
+_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_impl_v<long long> = true;
 
 template <>
-_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_v_impl<unsigned long long> = true;
+_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_impl_v<unsigned long long> = true;
 
 #  if !defined(_LIBCUDACXX_HAS_NO_INT128)
 template <>
-_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_v_impl<__int128_t> = true;
+_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_impl_v<__int128_t> = true;
 
 template <>
-_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_v_impl<__uint128_t> = true;
+_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_impl_v<__uint128_t> = true;
 #  endif // !_LIBCUDACXX_HAS_NO_INT128
 
 template <class _Tp>
-_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_v = __is_arithmetic_integral_v_impl<remove_cv_t<_Tp>>;
+_CCCL_INLINE_VAR constexpr bool __is_arithmetic_integral_v = __is_arithmetic_integral_impl_v<remove_cv_t<_Tp>>;
 
 #endif // ^^^ !_CCCL_NO_VARIABLE_TEMPLATES ^^^
 
