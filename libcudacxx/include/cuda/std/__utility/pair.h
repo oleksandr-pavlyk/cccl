@@ -61,7 +61,7 @@
 #include <cuda/std/__utility/piecewise_construct.h>
 #include <cuda/std/cstddef>
 
-// Provide compatability between `std::pair` and `cuda::std::pair`
+// Provide compatibility between `std::pair` and `cuda::std::pair`
 #if !_CCCL_COMPILER(NVRTC)
 #  include <utility>
 #endif // !_CCCL_COMPILER(NVRTC)
@@ -224,8 +224,8 @@ struct _CCCL_TYPE_VISIBILITY_DEFAULT pair : public __pair_base<_T1, _T2>
 {
   using __base = __pair_base<_T1, _T2>;
 
-  typedef _T1 first_type;
-  typedef _T2 second_type;
+  using first_type  = _T1;
+  using second_type = _T2;
 
   template <class _Constraints                                               = __pair_constraints<_T1, _T2>,
             enable_if_t<_Constraints::__explicit_default_constructible, int> = 0>
@@ -329,7 +329,7 @@ struct _CCCL_TYPE_VISIBILITY_DEFAULT pair : public __pair_base<_T1, _T2>
       : __base(_CUDA_VSTD::forward<_U1>(__p.first), _CUDA_VSTD::forward<_U2>(__p.second))
   {}
 
-  // std compatability
+  // std compatibility
 #if !_CCCL_COMPILER(NVRTC)
   template <class _U1,
             class _U2,
@@ -645,13 +645,13 @@ struct _CCCL_TYPE_VISIBILITY_DEFAULT tuple_element<_Ip, pair<_T1, _T2>>
 template <class _T1, class _T2>
 struct _CCCL_TYPE_VISIBILITY_DEFAULT tuple_element<0, pair<_T1, _T2>>
 {
-  typedef _CCCL_NODEBUG_ALIAS _T1 type;
+  using type _CCCL_NODEBUG_ALIAS = _T1;
 };
 
 template <class _T1, class _T2>
 struct _CCCL_TYPE_VISIBILITY_DEFAULT tuple_element<1, pair<_T1, _T2>>
 {
-  typedef _CCCL_NODEBUG_ALIAS _T2 type;
+  using type _CCCL_NODEBUG_ALIAS = _T2;
 };
 
 template <size_t _Ip>

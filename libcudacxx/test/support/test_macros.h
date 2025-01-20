@@ -65,9 +65,7 @@
 #  define TEST_HAS_BUILTIN_IDENTIFIER(X) 0
 #endif
 
-#if defined(__INTEL_COMPILER)
-#  define TEST_COMPILER_ICC
-#elif defined(__NVCOMPILER)
+#if defined(__NVCOMPILER)
 #  define TEST_COMPILER_NVHPC
 #elif defined(__clang__)
 #  define TEST_COMPILER_CLANG
@@ -201,14 +199,7 @@
 // Sniff out to see if the underling C library has C11 features
 // Note that at this time (July 2018), MacOS X and iOS do NOT.
 // This is cribbed from __config; but lives here as well because we can't assume libc++
-#if defined(__FreeBSD__)
-//  Specifically, FreeBSD does NOT have timespec_get, even though they have all
-//  the rest of C11 - this is PR#38495
-#  define TEST_HAS_C11_FEATURES
-#elif defined(__Fuchsia__) || defined(__wasi__)
-#  define TEST_HAS_C11_FEATURES
-#  define TEST_HAS_TIMESPEC_GET
-#elif defined(__linux__)
+#if defined(__linux__)
 // This block preserves the old behavior used by include/__config:
 // _LIBCUDACXX_GLIBC_PREREQ would be defined to 0 if __GLIBC_PREREQ was not
 // available. The configuration here may be too vague though, as Bionic, uClibc,
@@ -358,7 +349,7 @@ struct is_same<T, T>
 #  define TEST_HAS_NO_LOCALIZATION
 #endif
 
-#if defined(_LIBCUDACXX_NO_HAS_CHAR8_T)
+#if defined(_LIBCUDACXX_HAS_NO_CHAR8_T)
 #  define TEST_HAS_NO_CHAR8_T
 #endif
 
@@ -470,9 +461,9 @@ __host__ __device__ constexpr bool unused(T&&...)
 #  endif
 #endif // defined(TEST_COMPILER_MSVC)
 
-#if defined(TEST_COMPILER_NVHPC) || defined(TEST_COMPILER_ICC)
+#if defined(TEST_COMPILER_NVHPC)
 #  define TEST_COMPILER_BROKEN_SMF_NOEXCEPT
-#endif // TEST_COMPILER_NVHPC || TEST_COMPILER_ICC
+#endif // TEST_COMPILER_NVHPC
 
 #if (defined(TEST_WINDOWS_DLL) && !defined(_MSC_VER)) || defined(__MVS__)
 // Normally, a replaced e.g. 'operator new' ends up used if the user code

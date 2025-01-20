@@ -52,8 +52,6 @@
 
 #include <cuda/std/type_traits>
 
-#include <iterator>
-
 CUB_NAMESPACE_BEGIN
 
 /******************************************************************************
@@ -162,7 +160,7 @@ struct AgentScan
   // Wrap the native input pointer with CacheModifiedInputIterator
   // or directly use the supplied input iterator type
   using WrappedInputIteratorT =
-    ::cuda::std::_If<std::is_pointer<InputIteratorT>::value,
+    ::cuda::std::_If<::cuda::std::is_pointer<InputIteratorT>::value,
                      CacheModifiedInputIterator<AgentScanPolicyT::LOAD_MODIFIER, InputT, OffsetT>,
                      InputIteratorT>;
 
@@ -170,8 +168,8 @@ struct AgentScan
   enum
   {
     // Inclusive scan if no init_value type is provided
-    HAS_INIT     = !std::is_same<InitValueT, NullType>::value,
-    IS_INCLUSIVE = ForceInclusive || !HAS_INIT, // We are relying on either initial value not beeing `NullType`
+    HAS_INIT     = !::cuda::std::is_same<InitValueT, NullType>::value,
+    IS_INCLUSIVE = ForceInclusive || !HAS_INIT, // We are relying on either initial value not being `NullType`
                                                 // or the ForceInclusive tag to be true for inclusive scan
                                                 // to get picked up.
     BLOCK_THREADS    = AgentScanPolicyT::BLOCK_THREADS,
@@ -378,7 +376,7 @@ struct AgentScan
       BlockLoadT(temp_storage.load).Load(d_in + tile_offset, items);
     }
 
-    CTA_SYNC();
+    __syncthreads();
 
     // Perform tile scan
     if (tile_idx == 0)
@@ -399,7 +397,7 @@ struct AgentScan
       ScanTile(items, scan_op, prefix_op, Int2Type<IS_INCLUSIVE>());
     }
 
-    CTA_SYNC();
+    __syncthreads();
 
     // Store items
     if (IS_LAST_TILE)
@@ -484,7 +482,7 @@ struct AgentScan
       BlockLoadT(temp_storage.load).Load(d_in + tile_offset, items);
     }
 
-    CTA_SYNC();
+    __syncthreads();
 
     // Block scan
     if (IS_FIRST_TILE)
@@ -498,7 +496,7 @@ struct AgentScan
       ScanTile(items, scan_op, prefix_op, Int2Type<IS_INCLUSIVE>());
     }
 
-    CTA_SYNC();
+    __syncthreads();
 
     // Store items
     if (IS_LAST_TILE)

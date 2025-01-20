@@ -6,24 +6,23 @@
 #
 # ===----------------------------------------------------------------------===##
 
+import ctypes
 import os
-import platform
 import pipes
+import platform
 import re
 import shlex
 import shutil
 import sys
-import ctypes
 
+import libcudacxx.util
 from libcudacxx.compiler import CXXCompiler
-from libcudacxx.test.target_info import make_target_info
 
 # The wildcard import is to support `eval(exec_str)` in
 # `Configuration.configure_executor()` below.
 from libcudacxx.test.executor import *  # noqa: F403
 from libcudacxx.test.executor import LocalExecutor, NoopExecutor
-
-import libcudacxx.util
+from libcudacxx.test.target_info import make_target_info
 
 
 def loadSiteConfig(lit_config, config, param_name, env_name):
@@ -423,10 +422,6 @@ class Configuration(object):
                         self.host_cxx.default_dialect
                     )
                 )
-
-            if "icc" in self.config.available_features:
-                self.cxx.link_flags += ["-lirc"]
-                self.cxx.compile_flags += ["-Xcompiler=-diag-disable=10441"]
 
     def _configure_clang_cl(self, clang_path):
         def _split_env_var(var):
@@ -907,7 +902,7 @@ class Configuration(object):
         gcc_toolchain = self.get_lit_conf("gcc_toolchain")
         if gcc_toolchain:
             self.cxx.flags += ["--gcc-toolchain=" + gcc_toolchain]
-        # NOTE: the _DEBUG definition must preceed the triple check because for
+        # NOTE: the _DEBUG definition must precede the triple check because for
         # the Windows build of libc++, the forced inclusion of a header requires
         # that _DEBUG is defined.  Incorrect ordering will result in -target
         # being elided.
@@ -1046,19 +1041,6 @@ class Configuration(object):
         # Transform each macro name into the feature name used in the tests.
         # Ex. _LIBCUDACXX_HAS_NO_THREADS -> libcpp-has-no-threads
         for m in feature_macros:
-            if (
-                m == "_LIBCUDACXX_DISABLE_VISIBILITY_ANNOTATIONS"
-                or m == "_LIBCUDACXX_HIDE_FROM_ABI_PER_TU_BY_DEFAULT"
-            ):
-                continue
-            if m == "_LIBCUDACXX_ABI_VERSION":
-                self.config.available_features.add(
-                    "libcpp-abi-version-v%s" % feature_macros[m]
-                )
-                continue
-            if m == "_LIBCUDACXX_NO_VCRUNTIME":
-                self.config.available_features.add("libcpp-no-vcruntime")
-                continue
             assert m.startswith("_LIBCUDACXX_HAS_") or m.startswith("_LIBCUDACXX_ABI_")
             m = m.lower()[1:].replace("_", "-")
             self.config.available_features.add(m)
@@ -1098,12 +1080,7 @@ class Configuration(object):
                 self.cxx.compile_flags += ["-fno-rtti"]
 
     def configure_compile_flags_abi_version(self):
-        abi_version = self.get_lit_conf("abi_version", "").strip()
         abi_unstable = self.get_lit_bool("abi_unstable")
-        # Only add the ABI version when it is non-default.
-        # FIXME(EricWF): Get the ABI version from the "__config_site".
-        if abi_version and abi_version != "1":
-            self.cxx.compile_flags += ["-D_LIBCUDACXX_ABI_VERSION=" + abi_version]
         if abi_unstable:
             self.config.available_features.add("libcpp-abi-unstable")
             self.cxx.compile_flags += ["-D_LIBCUDACXX_ABI_UNSTABLE"]

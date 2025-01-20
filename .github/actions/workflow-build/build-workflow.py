@@ -62,8 +62,8 @@ import os
 import re
 import struct
 import sys
-import yaml
 
+import yaml
 
 matrix_yaml = None
 
@@ -555,7 +555,7 @@ def generate_dispatch_group_jobs(matrix_job):
     # The jobs tag is left unexploded to optimize scheduling here.
     job_types = set(matrix_job["jobs"])
 
-    # Add all dpendencies to the job_types set:
+    # Add all dependencies to the job_types set:
     standalone = set([])
     two_stage = {}  # {producer: set([consumer, ...])}
     for job_type in job_types:

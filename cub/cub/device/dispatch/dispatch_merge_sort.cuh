@@ -39,7 +39,6 @@
 
 #include <cub/agent/agent_merge_sort.cuh>
 #include <cub/device/dispatch/tuning/tuning_merge_sort.cuh>
-#include <cub/util_deprecated.cuh>
 #include <cub/util_device.cuh>
 #include <cub/util_math.cuh>
 #include <cub/util_namespace.cuh>
@@ -48,6 +47,8 @@
 #include <thrust/detail/integer_math.h>
 #include <thrust/system/cuda/detail/core/triple_chevron_launch.h>
 
+#include <cuda/std/__algorithm/max.h>
+#include <cuda/std/__algorithm/min.h>
 #include <cuda/std/type_traits>
 
 CUB_NAMESPACE_BEGIN
@@ -126,9 +127,10 @@ private:
   // Use fallback if either (a) the default block sort or (b) the block merge agent exceed the maximum shared memory
   // available per block and both (1) the fallback block sort and (2) the fallback merge agent would not exceed the
   // available shared memory
-  static constexpr auto max_default_size = (cub::max)(block_sort_helper_t::default_size, merge_helper_t::default_size);
+  static constexpr auto max_default_size =
+    (::cuda::std::max)(block_sort_helper_t::default_size, merge_helper_t::default_size);
   static constexpr auto max_fallback_size =
-    (cub::max)(block_sort_helper_t::fallback_size, merge_helper_t::fallback_size);
+    (::cuda::std::max)(block_sort_helper_t::fallback_size, merge_helper_t::fallback_size);
   static constexpr bool uses_fallback_policy =
     (max_default_size > max_smem_per_block) && (max_fallback_size <= max_smem_per_block);
 
@@ -400,33 +402,6 @@ struct DispatchMergeSort
       , ptx_version(ptx_version)
   {}
 
-  CUB_DETAIL_RUNTIME_DEBUG_SYNC_IS_NOT_SUPPORTED
-  CUB_RUNTIME_FUNCTION _CCCL_FORCEINLINE DispatchMergeSort(
-    void* d_temp_storage,
-    std::size_t& temp_storage_bytes,
-    KeyInputIteratorT d_input_keys,
-    ValueInputIteratorT d_input_items,
-    KeyIteratorT d_output_keys,
-    ValueIteratorT d_output_items,
-    OffsetT num_items,
-    CompareOpT compare_op,
-    cudaStream_t stream,
-    bool debug_synchronous,
-    int ptx_version)
-      : d_temp_storage(d_temp_storage)
-      , temp_storage_bytes(temp_storage_bytes)
-      , d_input_keys(d_input_keys)
-      , d_input_items(d_input_items)
-      , d_output_keys(d_output_keys)
-      , d_output_items(d_output_items)
-      , num_items(num_items)
-      , compare_op(compare_op)
-      , stream(stream)
-      , ptx_version(ptx_version)
-  {
-    CUB_DETAIL_RUNTIME_DEBUG_SYNC_USAGE_LOG
-  }
-
   // Invocation
   template <typename ActivePolicyT>
   CUB_RUNTIME_FUNCTION _CCCL_FORCEINLINE cudaError_t Invoke()
@@ -473,7 +448,7 @@ struct DispatchMergeSort
        */
       const std::size_t block_sort_smem_size       = num_tiles * BlockSortVSmemHelperT::vsmem_per_block;
       const std::size_t merge_smem_size            = num_tiles * MergeAgentVSmemHelperT::vsmem_per_block;
-      const std::size_t virtual_shared_memory_size = (cub::max)(block_sort_smem_size, merge_smem_size);
+      const std::size_t virtual_shared_memory_size = (::cuda::std::max)(block_sort_smem_size, merge_smem_size);
 
       void* allocations[4]            = {nullptr, nullptr, nullptr, nullptr};
       std::size_t allocation_sizes[4] = {
@@ -512,7 +487,7 @@ struct DispatchMergeSort
 
       // Invoke DeviceMergeSortBlockSortKernel
       THRUST_NS_QUALIFIER::cuda_cub::launcher::triple_chevron(
-        static_cast<int>(num_tiles), merge_sort_helper_t::policy_t::BLOCK_THREADS, 0, stream)
+        static_cast<int>(num_tiles), merge_sort_helper_t::policy_t::BLOCK_THREADS, 0, stream, true)
         .doit(
           DeviceMergeSortBlockSortKernel<
             typename PolicyHub::MaxPolicy,
@@ -682,33 +657,6 @@ struct DispatchMergeSort
     } while (0);
 
     return error;
-  }
-
-  CUB_DETAIL_RUNTIME_DEBUG_SYNC_IS_NOT_SUPPORTED
-  CUB_RUNTIME_FUNCTION _CCCL_FORCEINLINE static cudaError_t Dispatch(
-    void* d_temp_storage,
-    std::size_t& temp_storage_bytes,
-    KeyInputIteratorT d_input_keys,
-    ValueInputIteratorT d_input_items,
-    KeyIteratorT d_output_keys,
-    ValueIteratorT d_output_items,
-    OffsetT num_items,
-    CompareOpT compare_op,
-    cudaStream_t stream,
-    bool debug_synchronous)
-  {
-    CUB_DETAIL_RUNTIME_DEBUG_SYNC_USAGE_LOG
-
-    return Dispatch(
-      d_temp_storage,
-      temp_storage_bytes,
-      d_input_keys,
-      d_input_items,
-      d_output_keys,
-      d_output_items,
-      num_items,
-      compare_op,
-      stream);
   }
 };
 

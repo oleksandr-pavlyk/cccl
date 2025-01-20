@@ -53,7 +53,6 @@
 #include <cub/device/dispatch/tuning/tuning_radix_sort.cuh>
 #include <cub/grid/grid_even_share.cuh>
 #include <cub/util_debug.cuh>
-#include <cub/util_deprecated.cuh>
 #include <cub/util_device.cuh>
 #include <cub/util_math.cuh>
 #include <cub/util_type.cuh>
@@ -162,7 +161,7 @@ __launch_bounds__(int((ALT_DIGIT_BITS) ? int(ChainedPolicyT::ActivePolicy::AltUp
 
   upsweep.ProcessRegion(even_share.block_offset, even_share.block_end);
 
-  CTA_SYNC();
+  __syncthreads();
 
   // Write out digit counts (striped)
   upsweep.template ExtractCounts<IS_DESCENDING>(d_spine, gridDim.x, blockIdx.x);
@@ -433,7 +432,7 @@ __launch_bounds__(int(ChainedPolicyT::ActivePolicy::SingleTilePolicy::BLOCK_THRE
   // Load keys
   BlockLoadKeys(temp_storage.load_keys).Load(d_keys_in, keys, num_items, default_key);
 
-  CTA_SYNC();
+  __syncthreads();
 
   // Load values
   if (!KEYS_ONLY)
@@ -444,7 +443,7 @@ __launch_bounds__(int(ChainedPolicyT::ActivePolicy::SingleTilePolicy::BLOCK_THRE
 
     BlockLoadValues(temp_storage.load_values).Load(d_values_in, values, num_items);
 
-    CTA_SYNC();
+    __syncthreads();
   }
 
   // Sort tile
@@ -617,13 +616,13 @@ __launch_bounds__(int((ALT_DIGIT_BITS) ? ChainedPolicyT::ActivePolicy::AltSegmen
   BlockUpsweepT upsweep(temp_storage.upsweep, d_keys_in, current_bit, pass_bits, decomposer);
   upsweep.ProcessRegion(segment_begin, segment_end);
 
-  CTA_SYNC();
+  __syncthreads();
 
   // The count of each digit value in this pass (valid in the first RADIX_DIGITS threads)
   OffsetT bin_count[BINS_TRACKED_PER_THREAD];
   upsweep.ExtractCounts(bin_count);
 
-  CTA_SYNC();
+  __syncthreads();
 
   if (IS_DESCENDING)
   {
@@ -639,7 +638,7 @@ __launch_bounds__(int((ALT_DIGIT_BITS) ? ChainedPolicyT::ActivePolicy::AltSegmen
       }
     }
 
-    CTA_SYNC();
+    __syncthreads();
 
 #pragma unroll
     for (int track = 0; track < BINS_TRACKED_PER_THREAD; ++track)
@@ -678,7 +677,7 @@ __launch_bounds__(int((ALT_DIGIT_BITS) ? ChainedPolicyT::ActivePolicy::AltSegmen
       }
     }
 
-    CTA_SYNC();
+    __syncthreads();
 
 #pragma unroll
     for (int track = 0; track < BINS_TRACKED_PER_THREAD; ++track)
@@ -692,7 +691,7 @@ __launch_bounds__(int((ALT_DIGIT_BITS) ? ChainedPolicyT::ActivePolicy::AltSegmen
     }
   }
 
-  CTA_SYNC();
+  __syncthreads();
 
   // Downsweep
   BlockDownsweepT downsweep(
@@ -934,33 +933,6 @@ struct DispatchRadixSort
       , is_overwrite_okay(is_overwrite_okay)
       , decomposer(decomposer)
   {}
-
-  CUB_DETAIL_RUNTIME_DEBUG_SYNC_IS_NOT_SUPPORTED
-  CUB_RUNTIME_FUNCTION _CCCL_FORCEINLINE DispatchRadixSort(
-    void* d_temp_storage,
-    size_t& temp_storage_bytes,
-    DoubleBuffer<KeyT>& d_keys,
-    DoubleBuffer<ValueT>& d_values,
-    OffsetT num_items,
-    int begin_bit,
-    int end_bit,
-    bool is_overwrite_okay,
-    cudaStream_t stream,
-    bool debug_synchronous,
-    int ptx_version)
-      : d_temp_storage(d_temp_storage)
-      , temp_storage_bytes(temp_storage_bytes)
-      , d_keys(d_keys)
-      , d_values(d_values)
-      , num_items(num_items)
-      , begin_bit(begin_bit)
-      , end_bit(end_bit)
-      , stream(stream)
-      , ptx_version(ptx_version)
-      , is_overwrite_okay(is_overwrite_okay)
-  {
-    CUB_DETAIL_RUNTIME_DEBUG_SYNC_USAGE_LOG
-  }
 
   //------------------------------------------------------------------------------
   // Small-problem (single tile) invocation
@@ -1873,25 +1845,6 @@ struct DispatchRadixSort
 
     return error;
   }
-
-  CUB_DETAIL_RUNTIME_DEBUG_SYNC_IS_NOT_SUPPORTED
-  CUB_RUNTIME_FUNCTION _CCCL_FORCEINLINE static cudaError_t Dispatch(
-    void* d_temp_storage,
-    size_t& temp_storage_bytes,
-    DoubleBuffer<KeyT>& d_keys,
-    DoubleBuffer<ValueT>& d_values,
-    OffsetT num_items,
-    int begin_bit,
-    int end_bit,
-    bool is_overwrite_okay,
-    cudaStream_t stream,
-    bool debug_synchronous)
-  {
-    CUB_DETAIL_RUNTIME_DEBUG_SYNC_USAGE_LOG
-
-    return Dispatch(
-      d_temp_storage, temp_storage_bytes, d_keys, d_values, num_items, begin_bit, end_bit, is_overwrite_okay, stream);
-  }
 };
 
 /******************************************************************************
@@ -2027,39 +1980,6 @@ struct DispatchSegmentedRadixSort
       , is_overwrite_okay(is_overwrite_okay)
       , decomposer(decomposer)
   {}
-
-  CUB_DETAIL_RUNTIME_DEBUG_SYNC_IS_NOT_SUPPORTED
-  CUB_RUNTIME_FUNCTION _CCCL_FORCEINLINE DispatchSegmentedRadixSort(
-    void* d_temp_storage,
-    size_t& temp_storage_bytes,
-    DoubleBuffer<KeyT>& d_keys,
-    DoubleBuffer<ValueT>& d_values,
-    OffsetT num_items,
-    OffsetT num_segments,
-    BeginOffsetIteratorT d_begin_offsets,
-    EndOffsetIteratorT d_end_offsets,
-    int begin_bit,
-    int end_bit,
-    bool is_overwrite_okay,
-    cudaStream_t stream,
-    bool debug_synchronous,
-    int ptx_version)
-      : d_temp_storage(d_temp_storage)
-      , temp_storage_bytes(temp_storage_bytes)
-      , d_keys(d_keys)
-      , d_values(d_values)
-      , num_items(num_items)
-      , num_segments(num_segments)
-      , d_begin_offsets(d_begin_offsets)
-      , d_end_offsets(d_end_offsets)
-      , begin_bit(begin_bit)
-      , end_bit(end_bit)
-      , stream(stream)
-      , ptx_version(ptx_version)
-      , is_overwrite_okay(is_overwrite_okay)
-  {
-    CUB_DETAIL_RUNTIME_DEBUG_SYNC_USAGE_LOG
-  }
 
   //------------------------------------------------------------------------------
   // Multi-segment invocation
@@ -2428,39 +2348,6 @@ struct DispatchSegmentedRadixSort
     } while (0);
 
     return error;
-  }
-
-  CUB_DETAIL_RUNTIME_DEBUG_SYNC_IS_NOT_SUPPORTED
-  CUB_RUNTIME_FUNCTION _CCCL_FORCEINLINE static cudaError_t Dispatch(
-    void* d_temp_storage,
-    size_t& temp_storage_bytes,
-    DoubleBuffer<KeyT>& d_keys,
-    DoubleBuffer<ValueT>& d_values,
-    int num_items,
-    int num_segments,
-    BeginOffsetIteratorT d_begin_offsets,
-    EndOffsetIteratorT d_end_offsets,
-    int begin_bit,
-    int end_bit,
-    bool is_overwrite_okay,
-    cudaStream_t stream,
-    bool debug_synchronous)
-  {
-    CUB_DETAIL_RUNTIME_DEBUG_SYNC_USAGE_LOG
-
-    return Dispatch(
-      d_temp_storage,
-      temp_storage_bytes,
-      d_keys,
-      d_values,
-      num_items,
-      num_segments,
-      d_begin_offsets,
-      d_end_offsets,
-      begin_bit,
-      end_bit,
-      is_overwrite_okay,
-      stream);
   }
 };
 

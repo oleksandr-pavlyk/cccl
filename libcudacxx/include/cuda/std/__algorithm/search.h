@@ -48,7 +48,7 @@ _CCCL_NODISCARD _LIBCUDACXX_HIDE_FROM_ABI _CCCL_CONSTEXPR_CXX14 pair<_ForwardIte
   }
   while (true)
   {
-    // Find first element in sequence 1 that matchs *__first2, with a mininum of loop checks
+    // Find first element in sequence 1 that matches *__first2, with a minimum of loop checks
     while (true)
     {
       if (__first1 == __last1) // return __last1 if no element matches *__first2
@@ -70,7 +70,7 @@ _CCCL_NODISCARD _LIBCUDACXX_HIDE_FROM_ABI _CCCL_CONSTEXPR_CXX14 pair<_ForwardIte
       {
         return _CUDA_VSTD::make_pair(__first1, __m1);
       }
-      if (++__m1 == __last1) // Otherwise if source exhaused, pattern not found
+      if (++__m1 == __last1) // Otherwise if source exhausted, pattern not found
       {
         return _CUDA_VSTD::make_pair(__last1, __last1);
       }
@@ -93,8 +93,8 @@ __search(_RandomAccessIterator1 __first1,
          random_access_iterator_tag,
          random_access_iterator_tag)
 {
-  typedef typename iterator_traits<_RandomAccessIterator1>::difference_type _Diff1;
-  typedef typename iterator_traits<_RandomAccessIterator2>::difference_type _Diff2;
+  using _Diff1 = typename iterator_traits<_RandomAccessIterator1>::difference_type;
+  using _Diff2 = typename iterator_traits<_RandomAccessIterator2>::difference_type;
   // Take advantage of knowing source and pattern lengths.  Stop short when source is smaller than pattern
   const _Diff2 __len2 = __last2 - __first2;
   if (__len2 == 0)

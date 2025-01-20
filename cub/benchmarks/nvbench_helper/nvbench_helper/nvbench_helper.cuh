@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cub/thread/thread_operators.cuh>
+
 #include <thrust/device_vector.h>
 #include <thrust/execution_policy.h>
 
@@ -31,6 +33,8 @@ using complex = cuda::std::complex<float>;
 NVBENCH_DECLARE_TYPE_STRINGS(complex, "C64", "complex");
 NVBENCH_DECLARE_TYPE_STRINGS(::cuda::std::false_type, "false", "false_type");
 NVBENCH_DECLARE_TYPE_STRINGS(::cuda::std::true_type, "true", "true_type");
+NVBENCH_DECLARE_TYPE_STRINGS(cub::ArgMin, "ArgMin", "cub::ArgMin");
+NVBENCH_DECLARE_TYPE_STRINGS(cub::ArgMax, "ArgMax", "cub::ArgMax");
 
 template <typename T, T I>
 struct nvbench::type_strings<::cuda::std::integral_constant<T, I>>
@@ -48,20 +52,20 @@ struct nvbench::type_strings<::cuda::std::integral_constant<T, I>>
 namespace detail
 {
 
-template <class T, class List>
+template <class List, class... Ts>
 struct push_back
 {};
 
-template <class T, class... As>
-struct push_back<T, nvbench::type_list<As...>>
+template <class... As, class... Ts>
+struct push_back<nvbench::type_list<As...>, Ts...>
 {
-  using type = nvbench::type_list<As..., T>;
+  using type = nvbench::type_list<As..., Ts...>;
 };
 
 } // namespace detail
 
-template <class T, class List>
-using push_back_t = typename detail::push_back<T, List>::type;
+template <class List, class... Ts>
+using push_back_t = typename detail::push_back<List, Ts...>::type;
 
 #ifdef TUNE_OffsetT
 using offset_types = nvbench::type_list<TUNE_OffsetT>;

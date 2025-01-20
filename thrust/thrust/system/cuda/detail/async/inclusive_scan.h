@@ -36,7 +36,6 @@
 #elif defined(_CCCL_IMPLICIT_SYSTEM_HEADER_MSVC)
 #  pragma system_header
 #endif // no system header
-#include <thrust/detail/cpp14_required.h>
 
 #if _CCCL_STD_VER >= 2014
 
@@ -49,7 +48,8 @@
 #    include <thrust/system/cuda/detail/async/customization.h>
 #    include <thrust/system/cuda/detail/util.h>
 #    include <thrust/system/cuda/future.h>
-#    include <thrust/type_traits/remove_cvref.h>
+
+#    include <cuda/std/type_traits>
 
 #    include <type_traits>
 

@@ -28,6 +28,8 @@
 #include <cuda/std/__type_traits/is_copy_constructible.h>
 #include <cuda/std/__type_traits/is_empty.h>
 #include <cuda/std/__type_traits/is_move_constructible.h>
+#include <cuda/std/__type_traits/is_same.h>
+#include <cuda/std/__type_traits/is_trivially_move_constructible.h>
 #include <cuda/std/__type_traits/make_unsigned.h>
 #include <cuda/std/__type_traits/remove_reference.h>
 #include <cuda/std/__type_traits/void_t.h>
@@ -289,8 +291,8 @@ _LIBCUDACXX_HIDE_FROM_ABI typename pointer_traits<_Pointer>::element_type* __to_
 }
 #else // ^^^ C++17 ^^^ / vvv C++20 vvv
 template <class _Pointer>
-_LIBCUDACXX_HIDE_FROM_ABI auto
-__to_raw_pointer(const _Pointer& __p) noexcept -> decltype(pointer_traits<_Pointer>::to_address(__p))
+_LIBCUDACXX_HIDE_FROM_ABI auto __to_raw_pointer(const _Pointer& __p) noexcept
+  -> decltype(pointer_traits<_Pointer>::to_address(__p))
 {
   return pointer_traits<_Pointer>::to_address(__p);
 }
@@ -565,31 +567,8 @@ using __rebind_alloc _CCCL_NODEBUG_ALIAS = typename _Traits::template rebind_all
 template <class _Traits, class _Tp>
 struct __rebind_alloc_helper
 {
-  typedef _CCCL_NODEBUG_ALIAS typename _Traits::template rebind_alloc<_Tp> type;
+  using type _CCCL_NODEBUG_ALIAS = typename _Traits::template rebind_alloc<_Tp>;
 };
-
-// ASan choices
-#ifndef _LIBCUDACXX_HAS_NO_ASAN
-#  define _LIBCUDACXX_HAS_ASAN_CONTAINER_ANNOTATIONS_FOR_ALL_ALLOCATORS 1
-#endif
-
-#ifdef _LIBCUDACXX_HAS_ASAN_CONTAINER_ANNOTATIONS_FOR_ALL_ALLOCATORS
-template <class _Alloc>
-struct __asan_annotate_container_with_allocator
-#  if defined(_LIBCUDACXX_CLANG_VER) && _LIBCUDACXX_CLANG_VER >= 1600
-    : true_type
-{};
-#  else
-    // TODO LLVM18: Remove the special-casing
-    : false_type
-{
-};
-#  endif
-
-template <class _Tp>
-struct __asan_annotate_container_with_allocator<allocator<_Tp>> : true_type
-{};
-#endif
 
 #undef _LIBCUDACXX_ALLOCATOR_TRAITS_HAS_XXX
 

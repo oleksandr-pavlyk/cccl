@@ -44,7 +44,7 @@ using __vtable_for _CCCL_NODEBUG_ALIAS = typename __overrides_for<_Interface>::_
 //! __basic_vtable
 //!
 template <class _Interface, auto... _Mbrs>
-struct _LIBCUDACXX_DECLSPEC_EMPTY_BASES __basic_vtable
+struct _CCCL_DECLSPEC_EMPTY_BASES __basic_vtable
     : __rtti_base
     , __virtual_fn<_Mbrs>...
 {
@@ -71,8 +71,8 @@ struct _LIBCUDACXX_DECLSPEC_EMPTY_BASES __basic_vtable
   }
 
   template <class... _Others>
-  _CCCL_NODISCARD _CUDAX_HOST_API auto
-  __query_interface(__iset<_Others...>) const noexcept -> __vptr_for<__iset<_Others...>>
+  _CCCL_NODISCARD _CUDAX_HOST_API auto __query_interface(__iset<_Others...>) const noexcept
+    -> __vptr_for<__iset<_Others...>>
   {
     using __remainder _CCCL_NODEBUG_ALIAS =
       _CUDA_VSTD::__type_list_size<_CUDA_VSTD::__type_find<__unique_interfaces<interface>, __iset<_Others...>>>;
@@ -107,7 +107,7 @@ struct _LIBCUDACXX_DECLSPEC_EMPTY_BASES __basic_vtable
 //!
 
 template <class... _Interfaces>
-struct _LIBCUDACXX_DECLSPEC_EMPTY_BASES __vtable_tuple
+struct _CCCL_DECLSPEC_EMPTY_BASES __vtable_tuple
     : __rtti_ex<sizeof...(_Interfaces)>
     , __vtable_for<_Interfaces>...
 {

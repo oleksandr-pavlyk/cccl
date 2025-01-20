@@ -27,6 +27,7 @@
 
 #include <cuda/experimental/__stf/graph/graph_task.cuh>
 #include <cuda/experimental/__stf/graph/interfaces/slice.cuh>
+#include <cuda/experimental/__stf/graph/interfaces/void_interface.cuh>
 #include <cuda/experimental/__stf/internal/acquire_release.cuh>
 #include <cuda/experimental/__stf/internal/backend_allocator_setup.cuh>
 #include <cuda/experimental/__stf/internal/launch.cuh>
@@ -232,6 +233,13 @@ class graph_ctx : public backend_ctx<graph_ctx>
       return graph_epoch;
     }
 
+    // The completion of the CUDA graph implies the completion of all nodes in
+    // the graph
+    bool track_dangling_events() const override
+    {
+      return false;
+    }
+
     /* Store a vector of previously instantiated graphs, with the number of
      * nodes, number of edges, the executable graph, and the corresponding epoch.
      * */
@@ -259,7 +267,7 @@ public:
   template <typename T>
   using data_interface = typename graphed_interface_of<T>::type;
 
-  /// @brief This type is copyable, assignable, and movable. Howeever, copies have reference semantics.
+  /// @brief This type is copyable, assignable, and movable. However, copies have reference semantics.
   ///@{
   graph_ctx(async_resources_handle handle = async_resources_handle(nullptr))
       : backend_ctx<graph_ctx>(::std::make_shared<impl>(mv(handle)))
@@ -1022,7 +1030,7 @@ UNITTEST("basic launch test (graph_ctx)")
 
 inline void unit_test_launch_many_graph_ctx()
 {
-  // Stress the allocators and all ressources !
+  // Stress the allocators and all resources !
   for (size_t i = 0; i < 256; i++)
   {
     graph_ctx ctx;

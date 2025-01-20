@@ -27,31 +27,34 @@
 
 _LIBCUDACXX_BEGIN_NAMESPACE_STD
 
-#if _CCCL_STD_VER > 2014
+#if _CCCL_STD_VER >= 2014
+
+template <class _It, class _Proj, class = void>
+struct __projected_impl
+{
+  struct __type
+  {
+    using value_type = remove_cvref_t<indirect_result_t<_Proj, _It>>;
+    _LIBCUDACXX_HIDE_FROM_ABI indirect_result_t<_Proj, _It> operator*() const; // not defined
+  };
+};
+
+template <class _It, class _Proj>
+struct __projected_impl<_It, _Proj, enable_if_t<weakly_incrementable<_It>>>
+{
+  struct __type
+  {
+    using value_type      = remove_cvref_t<indirect_result_t<_Proj, _It>>;
+    using difference_type = iter_difference_t<_It>;
+    _LIBCUDACXX_HIDE_FROM_ABI indirect_result_t<_Proj, _It> operator*() const; // not defined
+  };
+};
 
 _CCCL_TEMPLATE(class _It, class _Proj)
 _CCCL_REQUIRES(indirectly_readable<_It> _CCCL_AND indirectly_regular_unary_invocable<_Proj, _It>)
-struct projected
-{
-  using value_type = remove_cvref_t<indirect_result_t<_Proj&, _It>>;
-  _LIBCUDACXX_HIDE_FROM_ABI indirect_result_t<_Proj&, _It> operator*() const; // not defined
-};
+using projected = typename __projected_impl<_It, _Proj>::__type;
 
-#  if _CCCL_STD_VER > 2017
-template <weakly_incrementable _It, class _Proj>
-struct incrementable_traits<projected<_It, _Proj>>
-{
-  using difference_type = iter_difference_t<_It>;
-};
-#  else
-template <class _It, class _Proj>
-struct incrementable_traits<projected<_It, _Proj>, enable_if_t<weakly_incrementable<_It>>>
-{
-  using difference_type = iter_difference_t<_It>;
-};
-#  endif // _CCCL_STD_VER > 2017
-
-#endif // _CCCL_STD_VER > 2014
+#endif // _CCCL_STD_VER >= 2014
 
 _LIBCUDACXX_END_NAMESPACE_STD
 

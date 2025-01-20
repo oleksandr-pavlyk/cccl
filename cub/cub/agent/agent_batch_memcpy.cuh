@@ -595,7 +595,7 @@ private:
     // Size is only valid (and relevant) for buffers that are use thread-level collaboration
     TLevBufferSizeT size;
 
-    // The buffer id relativ to this tile (i.e., the buffer id within this tile)
+    // The buffer id relative to this tile (i.e., the buffer id within this tile)
     BlockBufferOffsetT buffer_id;
   };
 
@@ -608,7 +608,7 @@ private:
               BUFFER_STABLE_PARTITION ? BLOCK_LOAD_WARP_TRANSPOSE : BLOCK_LOAD_STRIPED>;
 
   // A vectorized counter that will count the number of buffers that fall into each of the
-  // size-classes. Where the size class representes the collaboration level that is required to
+  // size-classes. Where the size class represents the collaboration level that is required to
   // process a buffer. The collaboration level being either:
   //-> (1) TLEV (thread-level collaboration), requiring one or multiple threads but not a FULL warp
   // to collaborate
@@ -834,7 +834,7 @@ private:
       BlockBLevTileCountScanT(temp_storage.staged.blev.block_scan_storage)
         .ExclusiveSum(block_offset, block_offset, blev_tile_prefix_op);
     }
-    CTA_SYNC();
+    __syncthreads();
 
     // Read in the BLEV buffer partition (i.e., the buffers that require block-level collaboration)
     blev_buffer_offset = threadIdx.x * BLEV_BUFFERS_PER_THREAD;
@@ -996,7 +996,7 @@ private:
 
       // Ensure all threads finished collaborative BlockExchange so temporary storage can be reused
       // with next iteration
-      CTA_SYNC();
+      __syncthreads();
     }
   }
 
@@ -1026,7 +1026,7 @@ public:
     }
 
     // Ensure we can repurpose the BlockLoad's temporary storage
-    CTA_SYNC();
+    __syncthreads();
 
     // Count how many buffers fall into each size-class
     VectorizedSizeClassCounterT size_class_histogram = GetBufferSizeClassHistogram(buffer_sizes);
@@ -1037,7 +1037,7 @@ public:
       .ExclusiveSum(size_class_histogram, size_class_histogram, size_class_agg);
 
     // Ensure we can repurpose the scan's temporary storage for scattering the buffer ids
-    CTA_SYNC();
+    __syncthreads();
 
     // Factor in the per-size-class counts / offsets
     // That is, WLEV buffer offset has to be offset by the TLEV buffer count and BLEV buffer offset
@@ -1077,7 +1077,7 @@ public:
 
     // Ensure the prefix callback has finished using its temporary storage and that it can be reused
     // in the next stage
-    CTA_SYNC();
+    __syncthreads();
 
     // Scatter the buffers into one of the three partitions (TLEV, WLEV, BLEV) depending on their
     // size
@@ -1085,7 +1085,7 @@ public:
 
     // Ensure all buffers have been partitioned by their size class AND
     // ensure that blev_buffer_offset has been written to shared memory
-    CTA_SYNC();
+    __syncthreads();
 
     // TODO: think about prefetching tile_buffer_{srcs,dsts} into shmem
     InputBufferIt tile_buffer_srcs        = input_buffer_it + buffer_offset;
@@ -1104,7 +1104,7 @@ public:
       tile_id);
 
     // Ensure we can repurpose the temporary storage required by EnqueueBLEVBuffers
-    CTA_SYNC();
+    __syncthreads();
 
     // Copy warp-level buffers
     BatchMemcpyWLEVBuffers(

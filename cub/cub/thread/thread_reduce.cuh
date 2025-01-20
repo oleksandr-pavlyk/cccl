@@ -195,7 +195,7 @@ namespace internal
  **********************************************************************************************************************/
 
 /// DPX instructions compute min, max, and sum for up to three 16 and 32-bit signed or unsigned integer parameters
-/// see DPX documetation https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#dpx
+/// see DPX documentation https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#dpx
 /// NOTE: The compiler is able to automatically vectorize all cases with 3 operands
 ///       However, all other cases with per-halfword comparison need to be explicitly vectorized
 ///
@@ -543,8 +543,8 @@ ThreadReduceTernaryTree(const Input& input, ReductionOp reduction_op)
 // never reached. Protect instantion of ThreadReduceSimd with arbitrary types and operators
 _CCCL_TEMPLATE(typename Input, typename ReductionOp)
 _CCCL_REQUIRES((!cub::internal::enable_generic_simd_reduction<Input, ReductionOp>()))
-_CCCL_NODISCARD _CCCL_DEVICE _CCCL_FORCEINLINE auto
-ThreadReduceSimd(const Input& input, ReductionOp) -> ::cuda::std::remove_cvref_t<decltype(input[0])>
+_CCCL_NODISCARD _CCCL_DEVICE _CCCL_FORCEINLINE auto ThreadReduceSimd(const Input& input, ReductionOp)
+  -> ::cuda::std::remove_cvref_t<decltype(input[0])>
 {
   assert(false);
   return input[0];
@@ -552,8 +552,8 @@ ThreadReduceSimd(const Input& input, ReductionOp) -> ::cuda::std::remove_cvref_t
 
 _CCCL_TEMPLATE(typename Input, typename ReductionOp)
 _CCCL_REQUIRES((cub::internal::enable_generic_simd_reduction<Input, ReductionOp>()))
-_CCCL_NODISCARD _CCCL_DEVICE _CCCL_FORCEINLINE auto
-ThreadReduceSimd(const Input& input, ReductionOp reduction_op) -> ::cuda::std::remove_cvref_t<decltype(input[0])>
+_CCCL_NODISCARD _CCCL_DEVICE _CCCL_FORCEINLINE auto ThreadReduceSimd(const Input& input, ReductionOp reduction_op)
+  -> ::cuda::std::remove_cvref_t<decltype(input[0])>
 {
   using cub::detail::unsafe_bitcast;
   using T                       = ::cuda::std::remove_cvref_t<decltype(input[0])>;
@@ -627,7 +627,8 @@ _CCCL_NODISCARD _CCCL_DEVICE _CCCL_FORCEINLINE AccumT ThreadReduce(const Input& 
                         ::cuda::minimum<>,
                         ::cuda::minimum<ValueT>,
                         cub::internal::SimdMin<ValueT>,
-                        cub::internal::SimdMax<ValueT>>())
+                        cub::internal::SimdMax<ValueT>>()
+                      || sizeof(ValueT) >= 8)
   {
     return cub::internal::ThreadReduceSequential<AccumT>(input, reduction_op);
   }

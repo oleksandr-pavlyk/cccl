@@ -34,6 +34,7 @@
 #include <cuda/experimental/__stf/internal/reorderer.cuh>
 #include <cuda/experimental/__stf/places/blocked_partition.cuh> // for unit test!
 #include <cuda/experimental/__stf/stream/interfaces/slice.cuh> // For implicit logical_data_untyped constructors
+#include <cuda/experimental/__stf/stream/interfaces/void_interface.cuh>
 #include <cuda/experimental/__stf/stream/stream_task.cuh>
 
 namespace cuda::experimental::stf
@@ -694,6 +695,13 @@ private:
       return event_list(mv(e));
     }
 
+    // We need to ensure all dangling events have been completed (eg. by having
+    // the CUDA stream used in the finalization wait on these events)
+    bool track_dangling_events() const override
+    {
+      return true;
+    }
+
     ::std::vector<int> deferred_tasks; // vector of mapping_ids
     ::std::unordered_map<int, deferred_stream_task<>> task_map; // maps from a mapping_id to the deferred_task
     cudaStream_t submitted_stream = nullptr; // stream used in submit
@@ -852,7 +860,7 @@ UNITTEST("logical_data_untyped moveable")
 
   for (int bid = 0; bid < 2; bid++)
   {
-    // This variable is likely to have the same address accross loop
+    // This variable is likely to have the same address across loop
     // iterations, which can stress the logical data management
     scalar res(ctx);
     auto t = ctx.task();
@@ -970,7 +978,7 @@ UNITTEST("non contiguous slice")
 
   int X[32 * 32];
 
-  // Pinning non contiguous memory is extremelly expensive, so we do it now
+  // Pinning non contiguous memory is extremely expensive, so we do it now
   cuda_safe_call(cudaHostRegister(&X[0], 32 * 32 * sizeof(int), cudaHostRegisterPortable));
 
   for (size_t i = 0; i < 32 * 32; i++)

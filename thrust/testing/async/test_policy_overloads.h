@@ -147,7 +147,7 @@ private:
   {
     // Sink the prefix tuple into a const local so it can be safely passed to
     // multiple invocations without worrying about potential modifications.
-    using prefix_tuple_type              = thrust::remove_cvref_t<PrefixArgTuple>;
+    using prefix_tuple_type              = cuda::std::remove_cvref_t<PrefixArgTuple>;
     prefix_tuple_type const prefix_tuple = THRUST_FWD(prefix_tuple_ref);
 
     using postfix_tuple_type               = std::tuple_element_t<PostfixIdx, postfix_args_type>;
@@ -204,9 +204,9 @@ private:
     // debugging:
     using overload_t = std::tuple_element_t<PostfixIdx, postfix_args_type>;
 
-    std::string const overload_desc = unittest::demangle(typeid(overload_t).name());
-    std::string const input_desc    = unittest::demangle(typeid(input_type).name());
-    std::string const output_desc   = unittest::demangle(typeid(output_type).name());
+    std::string const overload_desc = unittest::type_name<overload_t>();
+    std::string const input_desc    = unittest::type_name<input_type>();
+    std::string const output_desc   = unittest::type_name<output_type>();
 
     exc
       << "\n"

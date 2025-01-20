@@ -23,7 +23,6 @@
 #include <cuda/experimental/memory_resource.cuh>
 
 #include "testing.cuh"
-#include <catch2/catch.hpp>
 
 struct do_not_construct
 {
@@ -123,7 +122,7 @@ TEMPLATE_TEST_CASE(
       CUDAX_CHECK(input.get_stream() == cuda::stream_ref{});
     }
 
-    { // Ensure self move assignment doesnt do anything
+    { // Ensure self move assignment does not do anything
       uninitialized_async_buffer buf{resource, stream, 42};
       const auto* old_ptr = buf.data();
 

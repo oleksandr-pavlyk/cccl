@@ -13,11 +13,12 @@ import time
 
 import lit.Test  # pylint: disable=import-error
 import lit.TestRunner  # pylint: disable=import-error
-from lit.TestRunner import ParserKind, IntegratedTestKeywordParser
-# pylint: disable=import-error
+from lit.TestRunner import IntegratedTestKeywordParser, ParserKind
 
-from libcudacxx.test.executor import LocalExecutor as LocalExecutor
 import libcudacxx.util
+
+# pylint: disable=import-error
+from libcudacxx.test.executor import LocalExecutor as LocalExecutor
 
 
 class LibcxxTestFormat(object):
@@ -228,7 +229,7 @@ class LibcxxTestFormat(object):
             assert False  # Unreachable
         finally:
             # Note that cleanup of exec_file happens in `_clean()`. If you
-            # override this, cleanup is your reponsibility.
+            # override this, cleanup is your responsibility.
             libcudacxx.util.cleanFile(object_path)
             self._clean(exec_path)
 
