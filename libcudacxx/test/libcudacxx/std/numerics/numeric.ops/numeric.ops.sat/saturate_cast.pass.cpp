@@ -26,13 +26,13 @@
 using IMIN = signed char;
 using UMIN = signed char;
 
-#if !defined(TEST_HAS_NO_INT128)
+#if !defined(TEST_HAS_NO_INT128_T)
 using IMAX = __int128_t;
 using UMAX = __uint128_t;
-#else
+#else // ^^^ !TEST_HAS_NO_INT128_T ^^^ / vvv TEST_HAS_NO_INT128_T vvv
 using IMAX = signed long long;
 using UMAX = unsigned long long;
-#endif
+#endif // ^^^ TEST_HAS_NO_INT128_T ^^^
 
 template <class Ret, class T>
 __host__ __device__ constexpr bool test_sat_cast(T x, Ret res, int zero_value)
@@ -146,9 +146,9 @@ __host__ __device__ constexpr bool test(int zero_value)
   test_type<signed int>(zero_value);
   test_type<signed long>(zero_value);
   test_type<signed long long>(zero_value);
-#ifndef TEST_HAS_NO_INT128
+#ifndef TEST_HAS_NO_INT128_T
   test_type<__int128_t>(zero_value);
-#endif
+#endif // !TEST_HAS_NO_INT128_T
 
   return true;
 }
