@@ -247,48 +247,6 @@
 #  undef _CCCL_BUILTIN_EXPM1L
 #endif // _CCCL_CUDACC_BELOW(11, 7) || _CCCL_CUDA_COMPILER(CLANG)
 
-#if _CCCL_CHECK_BUILTIN(builtin_exp) || _CCCL_COMPILER(GCC)
-#  define _CCCL_BUILTIN_EXPF(...) __builtin_expf(__VA_ARGS__)
-#  define _CCCL_BUILTIN_EXP(...)  __builtin_exp(__VA_ARGS__)
-#  define _CCCL_BUILTIN_EXPL(...) __builtin_expl(__VA_ARGS__)
-#endif // _CCCL_CHECK_BUILTIN(builtin_exp)
-
-// Below 11.7 nvcc treats the builtin as a host only function
-// clang-cuda fails with fatal error: error in backend: Undefined external symbol "expf"
-#if _CCCL_CUDACC_BELOW(11, 7) || _CCCL_CUDA_COMPILER(CLANG)
-#  undef _CCCL_BUILTIN_EXPF
-#  undef _CCCL_BUILTIN_EXP
-#  undef _CCCL_BUILTIN_EXPL
-#endif // _CCCL_CUDACC_BELOW(11, 7) || _CCCL_CUDA_COMPILER(CLANG)
-
-#if _CCCL_CHECK_BUILTIN(builtin_exp2) || _CCCL_COMPILER(GCC)
-#  define _CCCL_BUILTIN_EXP2F(...) __builtin_exp2f(__VA_ARGS__)
-#  define _CCCL_BUILTIN_EXP2(...)  __builtin_exp2(__VA_ARGS__)
-#  define _CCCL_BUILTIN_EXP2L(...) __builtin_exp2l(__VA_ARGS__)
-#endif // _CCCL_CHECK_BUILTIN(builtin_exp2)
-
-// Below 11.7 nvcc treats the builtin as a host only function
-// clang-cuda fails with fatal error: error in backend: Undefined external symbol "exp2"
-#if _CCCL_CUDACC_BELOW(11, 7) || _CCCL_CUDA_COMPILER(CLANG)
-#  undef _CCCL_BUILTIN_EXP2F
-#  undef _CCCL_BUILTIN_EXP2
-#  undef _CCCL_BUILTIN_EXP2L
-#endif // _CCCL_CUDACC_BELOW(11, 7) || _CCCL_CUDA_COMPILER(CLANG)
-
-#if _CCCL_CHECK_BUILTIN(builtin_expm1) || _CCCL_COMPILER(GCC)
-#  define _CCCL_BUILTIN_EXPM1F(...) __builtin_expm1f(__VA_ARGS__)
-#  define _CCCL_BUILTIN_EXPM1(...)  __builtin_expm1(__VA_ARGS__)
-#  define _CCCL_BUILTIN_EXPM1L(...) __builtin_expm1l(__VA_ARGS__)
-#endif // _CCCL_CHECK_BUILTIN(builtin_expm1)
-
-// Below 11.7 nvcc treats the builtin as a host only function
-// clang-cuda fails with fatal error: error in backend: Undefined external symbol "expm1"
-#if _CCCL_CUDACC_BELOW(11, 7) || _CCCL_CUDA_COMPILER(CLANG)
-#  undef _CCCL_BUILTIN_EXPM1F
-#  undef _CCCL_BUILTIN_EXPM1
-#  undef _CCCL_BUILTIN_EXPM1L
-#endif // _CCCL_CUDACC_BELOW(11, 7) || _CCCL_CUDA_COMPILER(CLANG)
-
 #if _CCCL_CHECK_BUILTIN(builtin_expect) || _CCCL_COMPILER(MSVC) || _CCCL_COMPILER(GCC)
 #  define _CCCL_BUILTIN_EXPECT(...) __builtin_expect(__VA_ARGS__)
 #endif // _CCCL_CHECK_BUILTIN(builtin_expect)
