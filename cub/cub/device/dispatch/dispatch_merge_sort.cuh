@@ -230,7 +230,7 @@ CUB_DETAIL_KERNEL_ATTRIBUTES void DeviceMergeSortPartitionKernel(
 
   if (partition_idx < num_partitions)
   {
-    AgentPartition<KeyIteratorT, OffsetT, CompareOpT, KeyT> agent(
+    detail::merge_sort::AgentPartition<KeyIteratorT, OffsetT, CompareOpT, KeyT> agent(
       ping,
       keys_ping,
       keys_pong,

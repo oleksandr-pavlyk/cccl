@@ -130,7 +130,7 @@ template <typename ChainedPolicyT,
 __launch_bounds__(int(
   vsmem_helper_default_fallback_policy_t<
     typename ChainedPolicyT::ActivePolicy::UniqueByKeyPolicyT,
-    AgentUniqueByKey,
+    detail::unique_by_key::AgentUniqueByKey,
     KeyInputIteratorT,
     ValueInputIteratorT,
     KeyOutputIteratorT,
@@ -151,7 +151,7 @@ __launch_bounds__(int(
 {
   using VsmemHelperT = vsmem_helper_default_fallback_policy_t<
     typename ChainedPolicyT::ActivePolicy::UniqueByKeyPolicyT,
-    AgentUniqueByKey,
+    detail::unique_by_key::AgentUniqueByKey,
     KeyInputIteratorT,
     ValueInputIteratorT,
     KeyOutputIteratorT,
