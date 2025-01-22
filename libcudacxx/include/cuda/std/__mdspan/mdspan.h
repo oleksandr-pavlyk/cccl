@@ -50,6 +50,7 @@
 #include <cuda/std/__type_traits/remove_pointer.h>
 #include <cuda/std/__type_traits/remove_reference.h>
 #include <cuda/std/__utility/as_const.h>
+#include <cuda/std/__utility/declval.h>
 #include <cuda/std/__utility/integer_sequence.h>
 #include <cuda/std/__utility/move.h>
 #include <cuda/std/array>
@@ -138,7 +139,8 @@ public:
   constexpr mdspan(mdspan&&)      = default;
 
   _CCCL_TEMPLATE(class... _OtherIndexTypes)
-  _CCCL_REQUIRES(((sizeof...(_OtherIndexTypes) == rank()) || (sizeof...(_OtherIndexTypes) == rank_dynamic()))
+  _CCCL_REQUIRES(((sizeof...(_OtherIndexTypes) == extents_type::rank())
+                  || (sizeof...(_OtherIndexTypes) == extents_type::rank_dynamic()))
                    _CCCL_AND _CCCL_FOLD_AND(_CCCL_TRAIT(is_convertible, _OtherIndexTypes, index_type))
                      _CCCL_AND _CCCL_FOLD_AND(_CCCL_TRAIT(is_nothrow_constructible, index_type, _OtherIndexTypes))
                        _CCCL_AND _CCCL_TRAIT(is_constructible, mapping_type, extents_type)
@@ -157,7 +159,7 @@ public:
     && _CCCL_TRAIT(is_default_constructible, accessor_type);
 
   _CCCL_TEMPLATE(class _OtherIndexType, size_t _Size)
-  _CCCL_REQUIRES((_Size == rank_dynamic()) _CCCL_AND __is_constructible_from<_OtherIndexType>)
+  _CCCL_REQUIRES((_Size == extents_type::rank_dynamic()) _CCCL_AND __is_constructible_from<_OtherIndexType>)
   _LIBCUDACXX_HIDE_FROM_ABI constexpr mdspan(data_handle_type __p, const array<_OtherIndexType, _Size>& __exts)
       : __ptr_(_CUDA_VSTD::move(__p))
       , __map_(extents_type{__exts})
@@ -165,7 +167,7 @@ public:
   {}
 
   _CCCL_TEMPLATE(class _OtherIndexType, size_t _Size)
-  _CCCL_REQUIRES((_Size == rank()) _CCCL_AND(_Size != rank_dynamic())
+  _CCCL_REQUIRES((_Size == extents_type::rank()) _CCCL_AND(_Size != extents_type::rank_dynamic())
                    _CCCL_AND __is_constructible_from<_OtherIndexType>)
   _LIBCUDACXX_HIDE_FROM_ABI explicit constexpr mdspan(data_handle_type __p, const array<_OtherIndexType, _Size>& __exts)
       : __ptr_(_CUDA_VSTD::move(__p))
@@ -174,7 +176,7 @@ public:
   {}
 
   _CCCL_TEMPLATE(class _OtherIndexType, size_t _Size)
-  _CCCL_REQUIRES((_Size == rank_dynamic()) _CCCL_AND __is_constructible_from<_OtherIndexType>)
+  _CCCL_REQUIRES((_Size == extents_type::rank_dynamic()) _CCCL_AND __is_constructible_from<_OtherIndexType>)
   _LIBCUDACXX_HIDE_FROM_ABI constexpr mdspan(data_handle_type __p, span<_OtherIndexType, _Size> __exts)
       : __ptr_(_CUDA_VSTD::move(__p))
       , __map_(extents_type{__exts})
@@ -182,7 +184,7 @@ public:
   {}
 
   _CCCL_TEMPLATE(class _OtherIndexType, size_t _Size)
-  _CCCL_REQUIRES((_Size == rank()) _CCCL_AND(_Size != rank_dynamic())
+  _CCCL_REQUIRES((_Size == extents_type::rank()) _CCCL_AND(_Size != extents_type::rank_dynamic())
                    _CCCL_AND __is_constructible_from<_OtherIndexType>)
   _LIBCUDACXX_HIDE_FROM_ABI explicit constexpr mdspan(data_handle_type __p, span<_OtherIndexType, _Size> __exts)
       : __ptr_(_CUDA_VSTD::move(__p))
@@ -224,7 +226,7 @@ public:
     && _CCCL_TRAIT(is_convertible, const _OtherAccessor&, accessor_type);
 
   _CCCL_TEMPLATE(class _OtherElementType, class _OtherExtents, class _OtherLayoutPolicy, class _OtherAccessor)
-  _CCCL_REQUIRES((rank() > 0) //
+  _CCCL_REQUIRES((extents_type::rank() > 0) //
                  _CCCL_AND __is_convertible_from<_OtherExtents, _OtherLayoutPolicy, _OtherAccessor> //
                    _CCCL_AND __is_implicit_convertible_from<_OtherExtents, _OtherLayoutPolicy, _OtherAccessor>)
   _LIBCUDACXX_HIDE_FROM_ABI constexpr mdspan(
@@ -243,7 +245,7 @@ public:
     // its extents() function returns a const reference to extents_type.
     // The only way this can be triggered is if the mapping conversion constructor would for example
     // always construct its extents() only from the dynamic extents, instead of from the other extents.
-    for (size_t __r = 0; __r < rank(); __r++)
+    for (size_t __r = 0; __r < extents_type::rank(); __r++)
     {
       // Not catching this could lead to out of bounds errors later
       // e.g. mdspan<int, dextents<char,1>, non_checking_layout> m =
@@ -255,7 +257,7 @@ public:
   }
 
   _CCCL_TEMPLATE(class _OtherElementType, class _OtherExtents, class _OtherLayoutPolicy, class _OtherAccessor)
-  _CCCL_REQUIRES((rank() == 0) //
+  _CCCL_REQUIRES((extents_type::rank() == 0) //
                  _CCCL_AND __is_convertible_from<_OtherExtents, _OtherLayoutPolicy, _OtherAccessor> //
                    _CCCL_AND __is_implicit_convertible_from<_OtherExtents, _OtherLayoutPolicy, _OtherAccessor>)
   _LIBCUDACXX_HIDE_FROM_ABI constexpr mdspan(
@@ -270,7 +272,7 @@ public:
                   "mdspan: incompatible extents for mdspan construction");
   }
   _CCCL_TEMPLATE(class _OtherElementType, class _OtherExtents, class _OtherLayoutPolicy, class _OtherAccessor)
-  _CCCL_REQUIRES((rank() > 0) //
+  _CCCL_REQUIRES((extents_type::rank() > 0) //
                  _CCCL_AND __is_convertible_from<_OtherExtents, _OtherLayoutPolicy, _OtherAccessor> //
                    _CCCL_AND(!__is_implicit_convertible_from<_OtherExtents, _OtherLayoutPolicy, _OtherAccessor>))
   _LIBCUDACXX_HIDE_FROM_ABI explicit constexpr mdspan(
@@ -289,7 +291,7 @@ public:
     // its extents() function returns a const reference to extents_type.
     // The only way this can be triggered is if the mapping conversion constructor would for example
     // always construct its extents() only from the dynamic extents, instead of from the other extents.
-    for (size_t __r = 0; __r < rank(); __r++)
+    for (size_t __r = 0; __r < extents_type::rank(); __r++)
     {
       // Not catching this could lead to out of bounds errors later
       // e.g. mdspan<int, dextents<char,1>, non_checking_layout> m =
@@ -301,7 +303,7 @@ public:
   }
 
   _CCCL_TEMPLATE(class _OtherElementType, class _OtherExtents, class _OtherLayoutPolicy, class _OtherAccessor)
-  _CCCL_REQUIRES((rank() == 0) //
+  _CCCL_REQUIRES((extents_type::rank() == 0) //
                  _CCCL_AND __is_convertible_from<_OtherExtents, _OtherLayoutPolicy, _OtherAccessor> //
                    _CCCL_AND(!__is_implicit_convertible_from<_OtherExtents, _OtherLayoutPolicy, _OtherAccessor>))
   _LIBCUDACXX_HIDE_FROM_ABI explicit constexpr mdspan(
@@ -324,7 +326,7 @@ public:
 
 #  if defined(_LIBCUDACXX_HAS_MULTIARG_OPERATOR_BRACKETS)
   _CCCL_TEMPLATE(class... _OtherIndexTypes)
-  _CCCL_REQUIRES((sizeof...(_OtherIndexTypes) == rank())
+  _CCCL_REQUIRES((sizeof...(_OtherIndexTypes) == extents_type::rank())
                    _CCCL_AND _CCCL_FOLD_AND(_CCCL_TRAIT(is_convertible, _OtherIndexTypes, index_type))
                      _CCCL_AND _CCCL_FOLD_AND(_CCCL_TRAIT(is_nothrow_constructible, index_type, _OtherIndexTypes)))
   _LIBCUDACXX_HIDE_FROM_ABI constexpr reference operator[](_OtherIndexTypes... __indices) const
@@ -337,7 +339,7 @@ public:
   }
 #  else
   _CCCL_TEMPLATE(class _OtherIndexType)
-  _CCCL_REQUIRES((rank() == 1) _CCCL_AND _CCCL_TRAIT(is_convertible, _OtherIndexType, index_type)
+  _CCCL_REQUIRES((extents_type::rank() == 1) _CCCL_AND _CCCL_TRAIT(is_convertible, _OtherIndexType, index_type)
                    _CCCL_AND _CCCL_TRAIT(is_nothrow_constructible, index_type, _OtherIndexType))
   _LIBCUDACXX_HIDE_FROM_ABI constexpr reference operator[](_OtherIndexType __index) const
   {
@@ -362,7 +364,8 @@ public:
   _CCCL_TEMPLATE(class _OtherIndexType)
   _CCCL_REQUIRES(_CCCL_TRAIT(is_convertible, const _OtherIndexType&, index_type)
                    _CCCL_AND _CCCL_TRAIT(is_nothrow_constructible, index_type, const _OtherIndexType&))
-  _LIBCUDACXX_HIDE_FROM_ABI constexpr reference operator[](const array<_OtherIndexType, rank()>& __indices) const
+  _LIBCUDACXX_HIDE_FROM_ABI constexpr reference
+  operator[](const array<_OtherIndexType, extents_type::rank()>& __indices) const
   {
     return __acc_.access(__ptr_, __op_bracket(__indices, make_index_sequence<rank()>()));
   }
@@ -370,7 +373,7 @@ public:
   _CCCL_TEMPLATE(class _OtherIndexType)
   _CCCL_REQUIRES(_CCCL_TRAIT(is_convertible, const _OtherIndexType&, index_type)
                    _CCCL_AND _CCCL_TRAIT(is_nothrow_constructible, index_type, const _OtherIndexType&))
-  _LIBCUDACXX_HIDE_FROM_ABI constexpr reference operator[](span<_OtherIndexType, rank()> __indices) const
+  _LIBCUDACXX_HIDE_FROM_ABI constexpr reference operator[](span<_OtherIndexType, extents_type::rank()> __indices) const
   {
     return __acc_.access(__ptr_, __op_bracket(__indices, make_index_sequence<rank()>()));
   }
@@ -446,28 +449,33 @@ public:
     return __acc_;
   };
 
-  _LIBCUDACXX_HIDE_FROM_ABI static constexpr bool is_always_unique()
+  _LIBCUDACXX_HIDE_FROM_ABI static constexpr bool is_always_unique() noexcept(noexcept(mapping_type::is_always_unique()))
   {
     return mapping_type::is_always_unique();
   };
-  _LIBCUDACXX_HIDE_FROM_ABI static constexpr bool is_always_exhaustive()
+  _LIBCUDACXX_HIDE_FROM_ABI static constexpr bool
+  is_always_exhaustive() noexcept(noexcept(mapping_type::is_always_exhaustive()))
   {
     return mapping_type::is_always_exhaustive();
   };
-  _LIBCUDACXX_HIDE_FROM_ABI static constexpr bool is_always_strided()
+  _LIBCUDACXX_HIDE_FROM_ABI static constexpr bool
+  is_always_strided() noexcept(noexcept(mapping_type::is_always_strided()))
   {
     return mapping_type::is_always_strided();
   };
 
   _LIBCUDACXX_HIDE_FROM_ABI constexpr bool is_unique() const
+    noexcept(noexcept(_CUDA_VSTD::declval<const mapping_type&>().is_unique()))
   {
     return __map_.is_unique();
   };
   _LIBCUDACXX_HIDE_FROM_ABI constexpr bool is_exhaustive() const
+    noexcept(noexcept(_CUDA_VSTD::declval<const mapping_type&>().is_exhaustive()))
   {
     return __map_.is_exhaustive();
   };
   _LIBCUDACXX_HIDE_FROM_ABI constexpr bool is_strided() const
+    noexcept(noexcept(_CUDA_VSTD::declval<const mapping_type&>().is_strided()))
   {
     return __map_.is_strided();
   };

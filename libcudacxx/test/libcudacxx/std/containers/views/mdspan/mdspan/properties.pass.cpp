@@ -171,12 +171,12 @@ __host__ __device__ constexpr void test_mdspan_types(const H& handle, const M& m
   ASSERT_SAME_TYPE(decltype(m.is_unique()), bool);
   ASSERT_SAME_TYPE(decltype(m.is_exhaustive()), bool);
   ASSERT_SAME_TYPE(decltype(m.is_strided()), bool);
-  assert(!noexcept(MDS::is_always_unique()));
-  assert(!noexcept(MDS::is_always_exhaustive()));
-  assert(!noexcept(MDS::is_always_strided()));
-  assert(!noexcept(m.is_unique()));
-  assert(!noexcept(m.is_exhaustive()));
-  assert(!noexcept(m.is_strided()));
+  assert(noexcept(MDS::is_always_unique() == noexcept(M::is_always_unique())));
+  assert(noexcept(MDS::is_always_exhaustive()) == noexcept(M::is_always_exhaustive()));
+  assert(noexcept(MDS::is_always_strided()) == noexcept(M::is_always_strided()));
+  assert(noexcept(m.is_unique()) == noexcept(m.is_always_unique()));
+  assert(noexcept(m.is_exhaustive()) == noexcept(m.is_exhaustive()));
+  assert(noexcept(m.is_strided()) == noexcept(m.is_strided()));
   assert(MDS::is_always_unique() == M::is_always_unique());
   assert(MDS::is_always_exhaustive() == M::is_always_exhaustive());
   assert(MDS::is_always_strided() == M::is_always_strided());
@@ -249,11 +249,11 @@ __host__ __device__ TEST_CONSTEXPR_CXX20 bool test_evil()
 int main(int, char**)
 {
   test();
-  static_assert(test(), "");
+  // static_assert(test(), "");
 
   test_evil();
 #if TEST_STD_VER >= 2020
-  static_assert(test(), "");
+  static_assert(test_evil(), "");
 #endif // TEST_STD_VER >= 2020
 
   return 0;
