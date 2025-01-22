@@ -40,7 +40,6 @@
 #include <tuple>
 
 #include "catch2_test_launch_helper.h"
-#include "cub/util_type.cuh"
 #include <c2h/catch2_test_helper.h>
 #include <c2h/extended_types.h>
 #include <c2h/vector.h>

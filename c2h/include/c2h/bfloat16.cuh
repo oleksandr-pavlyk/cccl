@@ -233,10 +233,18 @@ inline std::ostream& operator<<(std::ostream& out, const __nv_bfloat16& x)
 }
 
 /******************************************************************************
- * limits
+ * traits and limits
  ******************************************************************************/
 
 _LIBCUDACXX_BEGIN_NAMESPACE_STD
+template <>
+struct __is_extended_floating_point<bfloat16_t> : true_type
+{};
+#ifndef _CCCL_NO_INLINE_VARIABLES
+template <>
+_CCCL_INLINE_VAR constexpr bool __is_extended_floating_point_v<bfloat16_t> = true;
+#endif // _CCCL_NO_INLINE_VARIABLES
+
 template <>
 class __numeric_limits_impl<bfloat16_t, __numeric_limits_type::__floating_point>
 {
