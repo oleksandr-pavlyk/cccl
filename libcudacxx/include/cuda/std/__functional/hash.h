@@ -35,7 +35,7 @@
 #include <cuda/std/__utility/pair.h>
 #include <cuda/std/__utility/swap.h>
 #include <cuda/std/cstdint>
-#include <cuda/std/detail/libcxx/include/cstring>
+#include <cuda/std/cstring>
 
 #ifndef __cuda_std__
 
@@ -45,7 +45,7 @@ template <class _Size>
 _LIBCUDACXX_HIDE_FROM_ABI _Size __loadword(const void* __p)
 {
   _Size __r;
-  std::memcpy(&__r, __p, sizeof(__r));
+  _CUDA_VSTD::memcpy(&__r, __p, sizeof(__r));
   return __r;
 }
 
@@ -374,7 +374,7 @@ struct _PairT
 
 _LIBCUDACXX_HIDE_FROM_ABI size_t __hash_combine(size_t __lhs, size_t __rhs) noexcept
 {
-  typedef __scalar_hash<_PairT> _HashT;
+  using _HashT     = __scalar_hash<_PairT>;
   const _PairT __p = {__lhs, __rhs};
   return _HashT()(__p);
 }
@@ -618,7 +618,7 @@ struct _CCCL_TYPE_VISIBILITY_DEFAULT __enum_hash : public __unary_function<_Tp, 
 {
   _LIBCUDACXX_HIDE_FROM_ABI size_t operator()(_Tp __v) const noexcept
   {
-    typedef typename underlying_type<_Tp>::type type;
+    using type = typename underlying_type<_Tp>::type;
     return hash<type>()(static_cast<type>(__v));
   }
 };

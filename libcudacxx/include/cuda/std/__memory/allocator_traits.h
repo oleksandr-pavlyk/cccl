@@ -35,7 +35,7 @@
 #include <cuda/std/__type_traits/void_t.h>
 #include <cuda/std/__utility/declval.h>
 #include <cuda/std/__utility/forward.h>
-#include <cuda/std/detail/libcxx/include/cstring>
+#include <cuda/std/cstring>
 #include <cuda/std/limits>
 
 _CCCL_PUSH_MACROS
@@ -567,7 +567,7 @@ using __rebind_alloc _CCCL_NODEBUG_ALIAS = typename _Traits::template rebind_all
 template <class _Traits, class _Tp>
 struct __rebind_alloc_helper
 {
-  typedef _CCCL_NODEBUG_ALIAS typename _Traits::template rebind_alloc<_Tp> type;
+  using type _CCCL_NODEBUG_ALIAS = typename _Traits::template rebind_alloc<_Tp>;
 };
 
 #undef _LIBCUDACXX_ALLOCATOR_TRAITS_HAS_XXX

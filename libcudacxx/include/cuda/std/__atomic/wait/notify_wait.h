@@ -25,6 +25,10 @@
 #include <cuda/std/__atomic/scopes.h>
 #include <cuda/std/__atomic/wait/polling.h>
 
+#if !_CCCL_COMPILER(NVRTC)
+#  include <cstring>
+#endif // !_CCCL_COMPILER(NVRTC)
+
 _LIBCUDACXX_BEGIN_NAMESPACE_STD
 
 extern "C" _CCCL_DEVICE void __atomic_try_wait_unsupported_before_SM_70__();
@@ -56,7 +60,7 @@ _LIBCUDACXX_HIDE_FROM_ABI bool __nonatomic_compare_equal(_Tp const& __lhs, _Tp c
 #if _CCCL_HAS_CUDA_COMPILER
   return __lhs == __rhs;
 #else
-  return memcmp(&__lhs, &__rhs, sizeof(_Tp)) == 0;
+  return _CUDA_VSTD::memcmp(&__lhs, &__rhs, sizeof(_Tp)) == 0;
 #endif
 }
 
