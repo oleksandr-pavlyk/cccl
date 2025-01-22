@@ -115,7 +115,9 @@ public:
   // [mdspan.mdspan.cons], mdspan constructors, assignment, and destructor
 
 #  if _CCCL_STD_VER >= 2020
-  constexpr mdspan()
+  constexpr mdspan() noexcept(_CCCL_TRAIT(is_nothrow_default_constructible, data_handle_type)
+                              && _CCCL_TRAIT(is_nothrow_default_constructible, mapping_type)
+                              && _CCCL_TRAIT(is_nothrow_default_constructible, accessor_type))
     requires((extents_type::rank_dynamic() > 0) && is_default_constructible_v<data_handle_type>
              && is_default_constructible_v<mapping_type> && is_default_constructible_v<accessor_type>)
   = default;

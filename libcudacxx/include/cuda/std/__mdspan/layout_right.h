@@ -66,24 +66,19 @@ private:
     return __x && ((*__res / __x) != __y);
   }
 
-  template <size_t _Rank = _Extents::rank(), enable_if_t<_Rank != 0, int> = 0>
   _LIBCUDACXX_HIDE_FROM_ABI static constexpr bool __required_span_size_is_representable(const extents_type& __ext)
   {
-    index_type __prod = __ext.extent(0);
-    for (rank_type __r = 1; __r < extents_type::rank(); __r++)
+    if constexpr (extents_type::rank() != 0)
     {
-      bool __overflowed = __mul_overflow(__prod, __ext.extent(__r), &__prod);
-      if (__overflowed)
+      index_type __prod = __ext.extent(0);
+      for (rank_type __r = 1; __r < extents_type::rank(); __r++)
       {
-        return false;
+        if (__mul_overflow(__prod, __ext.extent(__r), &__prod))
+        {
+          return false;
+        }
       }
     }
-    return true;
-  }
-
-  template <size_t _Rank = _Extents::rank(), enable_if_t<_Rank == 0, int> = 0>
-  _LIBCUDACXX_HIDE_FROM_ABI static constexpr bool __required_span_size_is_representable(const extents_type& __ext)
-  {
     return true;
   }
 

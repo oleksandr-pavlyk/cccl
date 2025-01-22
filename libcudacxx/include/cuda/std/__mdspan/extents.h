@@ -155,6 +155,7 @@ struct __static_partial_sums
 // The position of a dynamic value is indicated through a tag value.
 template <class _TDynamic, class _TStatic, _TStatic _DynTag, _TStatic... _Values>
 struct __maybe_static_array
+    : private __possibly_empty_array<_TDynamic, _CCCL_FOLD_PLUS(size_t(0), static_cast<size_t>(_Values == _DynTag))>
 {
   static_assert(is_convertible<_TStatic, _TDynamic>::value,
                 "__maybe_static_array: _TStatic must be convertible to _TDynamic");
@@ -168,9 +169,6 @@ private:
   using _StaticValues                     = __static_array<_TStatic, _Values...>;
   using _DynamicValues                    = __possibly_empty_array<_TDynamic, __size_dynamic_>;
 
-  // Dynamic values member
-  _CCCL_NO_UNIQUE_ADDRESS _DynamicValues __dyn_vals_;
-
   // static mapping of indices to the position in the dynamic values array
   using _DynamicIdxMap = __static_partial_sums<static_cast<size_t>(_Values == _DynTag)...>;
 
@@ -182,20 +180,18 @@ private:
 
 public:
   _LIBCUDACXX_HIDE_FROM_ABI constexpr __maybe_static_array() noexcept
-      : __dyn_vals_{__zeros(make_index_sequence<__size_dynamic_>())}
+      : _DynamicValues{__zeros(make_index_sequence<__size_dynamic_>())}
   {}
 
   template <class _Tp, size_t _Size>
   _LIBCUDACXX_HIDE_FROM_ABI constexpr __maybe_static_array(span<_Tp, _Size> __vals) noexcept
-#  if _CCCL_STD_VER <= 2017 // NVCC complains that this constructor would not be constexpr without it
-      : __dyn_vals_{}
-#  endif // _CCCL_STD_VER <= 2017
+      : _DynamicValues{}
   {
     if constexpr (_Size == __size_dynamic_)
     {
       for (size_t __i = 0; __i != _Size; __i++)
       {
-        __dyn_vals_[__i] = static_cast<_TDynamic>(__vals[__i]);
+        (*static_cast<_DynamicValues*>(this))[__i] = static_cast<_TDynamic>(__vals[__i]);
       }
     }
     else
@@ -205,7 +201,7 @@ public:
         _TStatic __static_val = _StaticValues::__get(__i);
         if (__static_val == _DynTag)
         {
-          __dyn_vals_[_DynamicIdxMap::__get(__i)] = static_cast<_TDynamic>(__vals[__i]);
+          (*static_cast<_DynamicValues*>(this))[_DynamicIdxMap::__get(__i)] = static_cast<_TDynamic>(__vals[__i]);
         }
         else
         {
@@ -224,13 +220,14 @@ public:
   _CCCL_TEMPLATE(class... _DynVals)
   _CCCL_REQUIRES((sizeof...(_DynVals) == __size_dynamic_) && (!__all<__is_std_span<_DynVals>...>::value))
   _LIBCUDACXX_HIDE_FROM_ABI constexpr __maybe_static_array(_DynVals... __vals) noexcept
-      : __dyn_vals_{static_cast<_TDynamic>(__vals)...}
+      : _DynamicValues{static_cast<_TDynamic>(__vals)...}
   {}
 
   // constructors from all values -- here rank will be greater than 0
   _CCCL_TEMPLATE(class... _DynVals)
   _CCCL_REQUIRES((sizeof...(_DynVals) != __size_dynamic_) && (!__all<__is_std_span<_DynVals>...>::value))
   _LIBCUDACXX_HIDE_FROM_ABI constexpr __maybe_static_array(_DynVals... __vals)
+      : _DynamicValues{}
   {
     static_assert((sizeof...(_DynVals) == __size_), "Invalid number of values.");
     _TDynamic __values[__size_] = {static_cast<_TDynamic>(__vals)...};
@@ -239,7 +236,7 @@ public:
       _TStatic __static_val = _StaticValues::__get(__i);
       if (__static_val == _DynTag)
       {
-        __dyn_vals_[_DynamicIdxMap::__get(__i)] = __values[__i];
+        (*static_cast<_DynamicValues*>(this))[_DynamicIdxMap::__get(__i)] = __values[__i];
       }
       else
       {
@@ -270,7 +267,9 @@ public:
       _CCCL_ASSERT(__i < __size_, "extents access: index must be less than rank");
     }
     _TStatic __static_val = _StaticValues::__get(__i);
-    return __static_val == _DynTag ? __dyn_vals_[_DynamicIdxMap::__get(__i)] : static_cast<_TDynamic>(__static_val);
+    return __static_val == _DynTag
+           ? (*static_cast<const _DynamicValues*>(this))[_DynamicIdxMap::__get(__i)]
+           : static_cast<_TDynamic>(__static_val);
   }
   _LIBCUDACXX_HIDE_FROM_ABI constexpr _TDynamic operator[](size_t __i) const
   {
@@ -389,7 +388,7 @@ struct __extent_delegate_tag
 // Used by mdspan, mdarray and layout mappings.
 // See ISO C++ standard [mdspan.extents]
 template <class _IndexType, size_t... _Extents>
-class extents
+class extents : private __mdspan_detail::__maybe_static_array<_IndexType, size_t, dynamic_extent, _Extents...>
 {
 public:
   // typedefs for integral types used
@@ -410,7 +409,6 @@ private:
 
   // internal storage type using __maybe_static_array
   using _Values = __mdspan_detail::__maybe_static_array<_IndexType, size_t, dynamic_extent, _Extents...>;
-  _CCCL_NO_UNIQUE_ADDRESS _Values __vals_;
 
 public:
   // [mdspan.extents.obs], observers of multidimensional index space
@@ -425,7 +423,7 @@ public:
 
   _LIBCUDACXX_HIDE_FROM_ABI constexpr index_type extent(rank_type __r) const noexcept
   {
-    return __vals_.__value(__r);
+    return this->__value(__r);
   }
   _LIBCUDACXX_HIDE_FROM_ABI static constexpr size_t static_extent(rank_type __r) noexcept
   {
@@ -446,7 +444,7 @@ public:
   _CCCL_REQUIRES((sizeof...(_OtherIndexTypes) == __rank_ || sizeof...(_OtherIndexTypes) == __rank_dynamic_)
                    _CCCL_AND __all_convertible_to_index_type<_OtherIndexTypes...>)
   _LIBCUDACXX_HIDE_FROM_ABI constexpr explicit extents(_OtherIndexTypes... __dynvals) noexcept
-      : __vals_(static_cast<index_type>(__dynvals)...)
+      : _Values(static_cast<index_type>(__dynvals)...)
   {
     // Not catching this could lead to out of bounds errors later
     // e.g. mdspan m(ptr, dextents<char, 1>(200u)); leads to an extent of -56 on m
@@ -475,7 +473,7 @@ public:
   _CCCL_TEMPLATE(class _OtherIndexType, size_t _Size)
   _CCCL_REQUIRES((_Size == __rank_dynamic_) _CCCL_AND __is_convertible_to_index_type<_OtherIndexType>)
   _LIBCUDACXX_HIDE_FROM_ABI constexpr extents(span<_OtherIndexType, _Size> __exts) noexcept
-      : __vals_(__exts)
+      : _Values(__exts)
   {
     // Not catching this could lead to out of bounds errors later
     // e.g. array a{200u}; mdspan<int, dextents<char,1>> m(ptr, extents(span<unsigned,1>(a))); leads to an extent of -56
@@ -488,7 +486,7 @@ public:
   _CCCL_REQUIRES((_Size != __rank_dynamic_) _CCCL_AND(_Size == __rank_)
                    _CCCL_AND __is_convertible_to_index_type<_OtherIndexType>)
   _LIBCUDACXX_HIDE_FROM_ABI explicit constexpr extents(span<_OtherIndexType, _Size> __exts) noexcept
-      : __vals_(__exts)
+      : _Values(__exts)
   {
     // Not catching this could lead to out of bounds errors later
     // e.g. array a{200u}; mdspan<int, dextents<char,1>> m(ptr, extents(span<unsigned,1>(a))); leads to an extent of -56
@@ -546,7 +544,7 @@ private:
   _CCCL_REQUIRES((rank() > 0) _CCCL_AND __potentially_narrowing<_OtherIndexType>)
   _LIBCUDACXX_HIDE_FROM_ABI constexpr extents(__extent_delegate_tag,
                                               const extents<_OtherIndexType, _OtherExtents...>& __other) noexcept
-      : __vals_(__construct_vals_from_extents(integral_constant<size_t, 0>(), integral_constant<size_t, 0>(), __other))
+      : _Values(__construct_vals_from_extents(integral_constant<size_t, 0>(), integral_constant<size_t, 0>(), __other))
   {
     for (size_t __r = 0; __r < rank(); __r++)
     {
@@ -568,7 +566,7 @@ private:
   _CCCL_REQUIRES((rank() > 0) _CCCL_AND(!__potentially_narrowing<_OtherIndexType>))
   _LIBCUDACXX_HIDE_FROM_ABI constexpr extents(__extent_delegate_tag,
                                               const extents<_OtherIndexType, _OtherExtents...>& __other) noexcept
-      : __vals_(__construct_vals_from_extents(integral_constant<size_t, 0>(), integral_constant<size_t, 0>(), __other))
+      : _Values(__construct_vals_from_extents(integral_constant<size_t, 0>(), integral_constant<size_t, 0>(), __other))
   {
     for (size_t __r = 0; __r < rank(); __r++)
     {
