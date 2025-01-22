@@ -354,8 +354,3 @@ struct CUB_NS_QUALIFIER::detail::unsigned_bits<half_t, void>
 {
   using type = unsigned short;
 };
-
-// template <>
-// struct CUB_NS_QUALIFIER::detail::NumericTraits<half_t>
-//     : CUB_NS_QUALIFIER::detail::BaseTraits<FLOATING_POINT, true, false, unsigned short, half_t>
-// {};
