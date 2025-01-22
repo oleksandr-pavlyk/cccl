@@ -145,7 +145,7 @@ __launch_bounds__(int(ChainedPolicyT::ActivePolicy::RleSweepPolicyT::BLOCK_THREA
   using AgentRlePolicyT = typename ChainedPolicyT::ActivePolicy::RleSweepPolicyT;
 
   // Thread block type for selecting data from input tiles
-  using AgentRleT = detail::rle::
+  using AgentRleT =
     AgentRle<AgentRlePolicyT, InputIteratorT, OffsetsOutputIteratorT, LengthsOutputIteratorT, EqualityOpT, OffsetT>;
 
   // Shared memory for AgentRle

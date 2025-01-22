@@ -159,12 +159,12 @@ __launch_bounds__(int(ChainedPolicyT::ActivePolicy::ReducePolicy::BLOCK_THREADS)
 {
   // Thread block type for reducing input tiles
   using AgentReduceT =
-    detail::reduce::AgentReduce<typename ChainedPolicyT::ActivePolicy::ReducePolicy,
-                                InputIteratorT,
-                                OutputIteratorT,
-                                OffsetT,
-                                ReductionOpT,
-                                AccumT>;
+    AgentReduce<typename ChainedPolicyT::ActivePolicy::ReducePolicy,
+                InputIteratorT,
+                OutputIteratorT,
+                OffsetT,
+                ReductionOpT,
+                AccumT>;
 
   // Shared memory storage
   __shared__ typename AgentReduceT::TempStorage temp_storage;

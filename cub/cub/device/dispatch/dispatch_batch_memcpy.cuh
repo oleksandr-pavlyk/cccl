@@ -164,16 +164,15 @@ __launch_bounds__(int(ChainedPolicyT::ActivePolicy::AgentLargeBufferPolicyT::BLO
       {
         if (thread_offset < buffer_sizes[buffer_id])
         {
-          const auto value =
-            batch_memcpy::read_item<IsMemcpy, AliasT, InputBufferT>(input_buffer_it[buffer_id], thread_offset);
-          batch_memcpy::write_item<IsMemcpy, AliasT, OutputBufferT>(output_buffer_it[buffer_id], thread_offset, value);
+          const auto value = read_item<IsMemcpy, AliasT, InputBufferT>(input_buffer_it[buffer_id], thread_offset);
+          write_item<IsMemcpy, AliasT, OutputBufferT>(output_buffer_it[buffer_id], thread_offset, value);
         }
         thread_offset += BLOCK_THREADS;
       }
     }
     else
     {
-      batch_memcpy::copy_items<IsMemcpy, BLOCK_THREADS, InputBufferT, OutputBufferT, BufferSizeT>(
+      copy_items<IsMemcpy, BLOCK_THREADS, InputBufferT, OutputBufferT, BufferSizeT>(
         input_buffer_it[buffer_id],
         output_buffer_it[buffer_id],
         (::cuda::std::min)(buffer_sizes[buffer_id] - tile_offset_within_buffer, TILE_SIZE),
@@ -238,7 +237,7 @@ __launch_bounds__(int(ChainedPolicyT::ActivePolicy::AgentSmallBufferPolicyT::BLO
   using AgentBatchMemcpyPolicyT = typename ChainedPolicyT::ActivePolicy::AgentSmallBufferPolicyT;
 
   // Block-level specialization
-  using AgentBatchMemcpyT = batch_memcpy::AgentBatchMemcpy<
+  using AgentBatchMemcpyT = AgentBatchMemcpy<
     AgentBatchMemcpyPolicyT,
     InputBufferIt,
     OutputBufferIt,

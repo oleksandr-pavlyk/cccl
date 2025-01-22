@@ -83,16 +83,16 @@ CUB_DETAIL_KERNEL_ATTRIBUTES void DeviceAdjacentDifferenceDifferenceKernel(
   // `operator()` function of `__device__` extended lambda within device code.
   using OutputT = invoke_result_t<DifferenceOpT, InputT, InputT>;
 
-  using Agent = detail::adjacent_difference::AgentDifference<
-    ActivePolicyT,
-    InputIteratorT,
-    OutputIteratorT,
-    DifferenceOpT,
-    OffsetT,
-    InputT,
-    OutputT,
-    MayAlias,
-    ReadLeft>;
+  using Agent =
+    AgentDifference<ActivePolicyT,
+                    InputIteratorT,
+                    OutputIteratorT,
+                    DifferenceOpT,
+                    OffsetT,
+                    InputT,
+                    OutputT,
+                    MayAlias,
+                    ReadLeft>;
 
   __shared__ typename Agent::TempStorage storage;
 
