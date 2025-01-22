@@ -108,12 +108,27 @@ struct __possibly_empty_array<_Tp, 0>
 {
   _LIBCUDACXX_HIDE_FROM_ABI constexpr _Tp& operator[](size_t)
   {
+#  if _CCCL_COMPILER(MSVC)
+    return *__get_fake_ptr();
+#  else // ^^^ _CCCL_COMPILER(MSVC) ^^^ / vvv !_CCCL_COMPILER(MSVC) vvv
     _CCCL_UNREACHABLE();
+#  endif // !_CCCL_COMPILER(MSVC)
   }
   _LIBCUDACXX_HIDE_FROM_ABI constexpr const _Tp& operator[](size_t) const
   {
+#  if _CCCL_COMPILER(MSVC)
+    return *__get_fake_ptr();
+#  else // ^^^ _CCCL_COMPILER(MSVC) ^^^ / vvv !_CCCL_COMPILER(MSVC) vvv
     _CCCL_UNREACHABLE();
+#  endif // !_CCCL_COMPILER(MSVC)
   }
+
+#  if _CCCL_COMPILER(MSVC)
+  _CCCL_NODISCARD _LIBCUDACXX_HIDE_FROM_ABI constexpr _Tp* __get_fake_ptr() noexcept
+  {
+    return nullptr;
+  }
+#  endif // _CCCL_COMPILER(MSVC)
 };
 
 // ------------------------------------------------------------------
