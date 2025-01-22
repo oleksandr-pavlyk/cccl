@@ -334,7 +334,7 @@ inline std::ostream& operator<<(std::ostream& out, const __half& x)
 
 _LIBCUDACXX_BEGIN_NAMESPACE_STD
 template <>
-class numeric_limits<half_t>
+class __numeric_limits_impl<half_t, __numeric_limits_type::__floating_point>
 {
 public:
   static __host__ __device__ __forceinline__ half_t max()

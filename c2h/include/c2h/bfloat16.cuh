@@ -238,7 +238,7 @@ inline std::ostream& operator<<(std::ostream& out, const __nv_bfloat16& x)
 
 _LIBCUDACXX_BEGIN_NAMESPACE_STD
 template <>
-class numeric_limits<bfloat16_t>
+class __numeric_limits_impl<bfloat16_t, __numeric_limits_type::__floating_point>
 {
 public:
   static __host__ __device__ __forceinline__ bfloat16_t max()
