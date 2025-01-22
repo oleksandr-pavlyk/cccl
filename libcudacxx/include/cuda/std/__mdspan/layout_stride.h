@@ -123,6 +123,7 @@ private:
   template <class _OtherIndexType>
   _LIBCUDACXX_HIDE_FROM_ABI static constexpr bool __conversion_may_overflow(_OtherIndexType __stride) noexcept
   {
+    (void) __stride; // nvcc believes stride is unused here
     if constexpr (_CCCL_TRAIT(is_integral, _OtherIndexType))
     {
       using _CommonType = common_type_t<index_type, _OtherIndexType>;
@@ -139,6 +140,7 @@ private:
   _LIBCUDACXX_HIDE_FROM_ABI static constexpr bool __required_span_size_is_representable(
     const extents_type& __ext, span<_OtherIndexType, extents_type::rank()> __strides)
   {
+    (void) __strides; // nvcc believes strides is unused here
     if constexpr (extents_type::rank() != 0)
     {
       index_type __size = 1;
@@ -232,6 +234,7 @@ public:
   _LIBCUDACXX_HIDE_FROM_ABI static constexpr auto
   __check_strides(span<_OtherIndexType, extents_type::rank()> __strides, index_sequence<_Pos...>) noexcept
   {
+    (void) __strides; // nvcc believes strides is unused here
     if constexpr (_CCCL_TRAIT(is_integral, _OtherIndexType))
     {
       return _CCCL_FOLD_AND((__strides[_Pos] > static_cast<_OtherIndexType>(0)));
