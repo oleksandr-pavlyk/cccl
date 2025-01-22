@@ -48,6 +48,7 @@ __host__ __device__ constexpr T construct_from_int(int val) noexcept
 {
   if constexpr (cuda::std::__integral_constant_like<T>)
   {
+    (void) val;
     return T{};
   }
   else
