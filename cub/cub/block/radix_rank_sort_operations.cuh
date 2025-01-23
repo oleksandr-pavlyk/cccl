@@ -76,6 +76,10 @@ CUB_NAMESPACE_BEGIN
 template <typename KeyT, bool IsFP = ::cuda::is_floating_point_v<KeyT>>
 struct BaseDigitExtractor
 {
+  _CCCL_SUPPRESS_DEPRECATED_PUSH
+  static_assert(Traits<KeyT>::CATEGORY != FLOATING_POINT, "");
+  _CCCL_SUPPRESS_DEPRECATED_POP
+
   using UnsignedBits = typename Twiddle<KeyT>::UnsignedBits;
 
   static _CCCL_HOST_DEVICE _CCCL_FORCEINLINE UnsignedBits ProcessFloatMinusZero(UnsignedBits key)
@@ -87,6 +91,10 @@ struct BaseDigitExtractor
 template <typename KeyT>
 struct BaseDigitExtractor<KeyT, true>
 {
+  _CCCL_SUPPRESS_DEPRECATED_PUSH
+  static_assert(Traits<KeyT>::CATEGORY == FLOATING_POINT, "");
+  _CCCL_SUPPRESS_DEPRECATED_POP
+
   using UnsignedBits = typename Twiddle<KeyT>::UnsignedBits;
 
   static _CCCL_HOST_DEVICE _CCCL_FORCEINLINE UnsignedBits ProcessFloatMinusZero(UnsignedBits key)

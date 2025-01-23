@@ -177,6 +177,10 @@ private:
     /// Whether the data type is an integer (which has fully-associative addition)
     IS_INTEGER = cuda::std::is_integral<T>::value
   };
+  _CCCL_SUPPRESS_DEPRECATED_PUSH
+  static_assert(IS_INTEGER == ((Traits<T>::CATEGORY == SIGNED_INTEGER) || (Traits<T>::CATEGORY == UNSIGNED_INTEGER)),
+                "");
+  _CCCL_SUPPRESS_DEPRECATED_POP
 
   /// Internal specialization.
   /// Use SHFL-based scan if LOGICAL_WARP_THREADS is a power-of-two
