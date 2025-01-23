@@ -12,8 +12,6 @@
 
 #include <cuda/std/utility>
 
-#include <memory>
-
 #include "CommonHelpers.h"
 #include "test_macros.h"
 
@@ -34,83 +32,29 @@ struct MinimalElementType
 template <class T, size_t N>
 struct ElementPool
 {
-  __host__ __device__ TEST_CONSTEXPR_CXX20 ElementPool()
+private:
+  __host__ __device__ static constexpr int to_42(const int) noexcept
   {
-#if TEST_STD_VER >= 2020
-    if (cuda::std::is_constant_evaluated())
-    {
-      // clang-format off
-      NV_IF_TARGET(NV_IS_HOST, (
-        std::construct_at(&constexpr_ptr_, std::allocator<cuda::std::remove_const_t<T>>{}.allocate(N));
-        for (int i = 0; i != N;++i)
-        {
-          std::construct_at(constexpr_ptr_ + i, 42);
-        }
-      ))
-      // clang-format on
-    }
-    else
-#endif // TEST_STD_VER >= 2020
-    {
-      T* ptr = reinterpret_cast<T*>(ptr_);
-      for (int i = 0; i != N; ++i)
-      {
-        cuda::std::__construct_at(ptr + i, 42);
-      }
-    }
+    return 42;
   }
+
+  template <int... Indices>
+  __host__ __device__ constexpr ElementPool(cuda::std::integer_sequence<int, Indices...>)
+      : ptr_{T(to_42(Indices))...}
+  {}
+
+public:
+  __host__ __device__ constexpr ElementPool()
+      : ElementPool(cuda::std::make_integer_sequence<int, N>())
+  {}
 
   __host__ __device__ constexpr T* get_ptr()
   {
-#if TEST_STD_VER >= 2020
-    if (cuda::std::is_constant_evaluated())
-    {
-      // clang-format off
-      NV_IF_ELSE_TARGET(NV_IS_HOST, (
-        return constexpr_ptr_;
-      ),(
-        return nullptr;
-      ))
-      // clang-format on
-    }
-    else
-#endif // TEST_STD_VER >= 2020
-    {
-      return reinterpret_cast<T*>(ptr_);
-    }
-  }
-
-  __host__ __device__ TEST_CONSTEXPR_CXX20 ~ElementPool()
-  {
-#if TEST_STD_VER >= 2020
-    if (cuda::std::is_constant_evaluated())
-    {
-      // clang-format off
-      NV_IF_TARGET(NV_IS_HOST,(
-        for (int i = 0; i != N; ++i) {
-          std::destroy_at(constexpr_ptr_ + i);
-        }
-        std::allocator<cuda::std::remove_const_t<T>>{}.deallocate(constexpr_ptr_, N);
-      ))
-      return;
-      // clang-format on
-    }
-    else
-#endif // TEST_STD_VER >= 2020
-    {
-      for (int i = 0; i != N; ++i)
-      {
-        cuda::std::__destroy_at(ptr_ + i);
-      }
-    }
+    return ptr_;
   }
 
 private:
-  union
-  {
-    char ptr_[N * sizeof(T)] = {};
-    cuda::std::remove_const_t<T>* constexpr_ptr_;
-  };
+  T ptr_[N];
 };
 
 #endif // TEST_STD_CONTAINERS_VIEWS_MDSPAN_MINIMAL_ELEMENT_TYPE_H
