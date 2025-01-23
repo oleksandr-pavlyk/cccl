@@ -120,8 +120,10 @@ struct checked_accessor
   __host__ __device__ constexpr checked_accessor(size_t N_)
       : N(N_)
   {}
-  template <class OtherElementType,
-            cuda::std::enable_if_t<cuda::std::is_convertible<OtherElementType (*)[], element_type (*)[]>::value, int> = 0>
+
+  _CCCL_TEMPLATE(class OtherElementType)
+  _CCCL_REQUIRES((!_CCCL_TRAIT(cuda::std::is_same, OtherElementType, element_type)) _CCCL_AND _CCCL_TRAIT(
+    cuda::std::is_convertible, OtherElementType (*)[], element_type (*)[]))
   __host__ __device__ explicit constexpr checked_accessor(const checked_accessor<OtherElementType>& other) noexcept
   {
     N = other.N;
