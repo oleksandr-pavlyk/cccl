@@ -115,7 +115,7 @@ public:
   //--------------------------------------------------------------------------------
   // [mdspan.mdspan.cons], mdspan constructors, assignment, and destructor
 
-#  if _CCCL_STD_VER >= 2020
+#  if _CCCL_STD_VER >= 2020 && (!_CCCL_CUDA_COMPILER(NVCC, <, 12, 3))
   constexpr mdspan() noexcept(_CCCL_TRAIT(is_nothrow_default_constructible, data_handle_type)
                               && _CCCL_TRAIT(is_nothrow_default_constructible, mapping_type)
                               && _CCCL_TRAIT(is_nothrow_default_constructible, accessor_type))
