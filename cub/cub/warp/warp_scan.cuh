@@ -175,7 +175,7 @@ private:
     IS_POW_OF_TWO = ((LOGICAL_WARP_THREADS & (LOGICAL_WARP_THREADS - 1)) == 0),
 
     /// Whether the data type is an integer (which has fully-associative addition)
-    IS_INTEGER = ((Traits<T>::CATEGORY == SIGNED_INTEGER) || (Traits<T>::CATEGORY == UNSIGNED_INTEGER))
+    IS_INTEGER = cuda::std::is_integral<T>::value
   };
 
   /// Internal specialization.

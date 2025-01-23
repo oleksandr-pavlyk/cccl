@@ -128,7 +128,7 @@ struct WarpReduceShfl
     {
       /// Whether the data type is a small (32b or less) integer for which we can use a single SHFL instruction per
       /// exchange
-      IS_SMALL_UNSIGNED = (Traits<S>::CATEGORY == UNSIGNED_INTEGER) && (sizeof(S) <= sizeof(unsigned int))
+      IS_SMALL_UNSIGNED = ::cuda::std::__cccl_is_unsigned_integer<S>::value && (sizeof(S) <= sizeof(unsigned int))
     };
   };
 
