@@ -336,7 +336,7 @@ struct DeviceReduce
   //! @rst
   //! Computes a device-wide minimum using the less-than (``<``) operator.
   //!
-  //! - Uses ``std::numeric_limits<T>::max()`` as the initial value of the reduction.
+  //! - Uses ``::cuda::std::numeric_limits<T>::max()`` as the initial value of the reduction.
   //! - Does not support ``<`` operators that are non-commutative.
   //! - Provides "run-to-run" determinism for pseudo-associative reduction
   //!   (e.g., addition of floating point types) on the same GPU device.
@@ -584,7 +584,7 @@ struct DeviceReduce
   //!   (assuming the value type of ``d_in`` is ``T``)
   //!
   //!   - The minimum is written to ``d_out.value`` and its offset in the input array is written to ``d_out.key``.
-  //!   - The ``{1, std::numeric_limits<T>::max()}`` tuple is produced for zero-length inputs
+  //!   - The ``{1, ::cuda::std::numeric_limits<T>::max()}`` tuple is produced for zero-length inputs
   //!
   //! - Does not support ``<`` operators that are non-commutative.
   //! - Provides "run-to-run" determinism for pseudo-associative reduction
@@ -701,7 +701,7 @@ struct DeviceReduce
   //! @rst
   //! Computes a device-wide maximum using the greater-than (``>``) operator.
   //!
-  //! - Uses ``std::numeric_limits<T>::lowest()`` as the initial value of the reduction.
+  //! - Uses ``::cuda::std::numeric_limits<T>::lowest()`` as the initial value of the reduction.
   //! - Does not support ``>`` operators that are non-commutative.
   //! - Provides "run-to-run" determinism for pseudo-associative reduction
   //!   (e.g., addition of floating point types) on the same GPU device.
@@ -798,7 +798,7 @@ struct DeviceReduce
       static_cast<OffsetT>(num_items),
       ::cuda::maximum<>{},
       // replace with
-      // std::numeric_limits<T>::lowest()
+      // ::cuda::std::numeric_limits<T>::lowest()
       // when C++11 support is more
       // prevalent
       ::cuda::std::numeric_limits<InitT>::lowest(),
@@ -952,7 +952,7 @@ struct DeviceReduce
   //!
   //!   - The maximum is written to ``d_out.value`` and its offset in the input
   //!     array is written to ``d_out.key``.
-  //!   - The ``{1, std::numeric_limits<T>::lowest()}`` tuple is produced for zero-length inputs
+  //!   - The ``{1, ::cuda::std::numeric_limits<T>::lowest()}`` tuple is produced for zero-length inputs
   //!
   //! - Does not support ``>`` operators that are non-commutative.
   //! - Provides "run-to-run" determinism for pseudo-associative reduction

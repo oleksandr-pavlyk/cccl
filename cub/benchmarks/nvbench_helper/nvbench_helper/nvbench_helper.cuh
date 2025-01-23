@@ -452,7 +452,7 @@ struct less_t
       // (close to the maximum representable value for a double), it is possible that
       // the magnitude computation can result in positive infinity:
       // ```cpp
-      // const double large_number = std::numeric_limits<double>::max() / 2;
+      // const double large_number = ::cuda::std::numeric_limits<double>::max() / 2;
       // std::complex<double> z(large_number, large_number);
       // std::abs(z) == inf;
       // ```

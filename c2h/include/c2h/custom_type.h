@@ -27,7 +27,8 @@
 
 #pragma once
 
-#include <limits>
+#include <cuda/std/limits>
+
 #include <memory>
 #include <ostream>
 
@@ -186,24 +187,24 @@ public:
   static __host__ __device__ c2h::custom_type_t<Policies...> max()
   {
     c2h::custom_type_t<Policies...> val;
-    val.key = std::numeric_limits<std::size_t>::max();
-    val.val = std::numeric_limits<std::size_t>::max();
+    val.key = numeric_limits<std::size_t>::max();
+    val.val = numeric_limits<std::size_t>::max();
     return val;
   }
 
   static __host__ __device__ c2h::custom_type_t<Policies...> min()
   {
     c2h::custom_type_t<Policies...> val;
-    val.key = std::numeric_limits<std::size_t>::min();
-    val.val = std::numeric_limits<std::size_t>::min();
+    val.key = numeric_limits<std::size_t>::min();
+    val.val = numeric_limits<std::size_t>::min();
     return val;
   }
 
   static __host__ __device__ c2h::custom_type_t<Policies...> lowest()
   {
     c2h::custom_type_t<Policies...> val;
-    val.key = std::numeric_limits<std::size_t>::lowest();
-    val.val = std::numeric_limits<std::size_t>::lowest();
+    val.key = numeric_limits<std::size_t>::lowest();
+    val.val = numeric_limits<std::size_t>::lowest();
     return val;
   }
 };
