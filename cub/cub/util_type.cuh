@@ -1058,16 +1058,19 @@ struct Traits : NumericTraits<typename ::cuda::std::remove_cv<T>::type>
 } // namespace detail
 
 template <Category _CATEGORY, bool _PRIMITIVE, bool _NULL_TYPE, typename _UnsignedBits, typename T>
-using BaseTraits CCCL_DEPRECATED = detail::BaseTraits<_CATEGORY, _PRIMITIVE, _NULL_TYPE, _UnsignedBits, T>;
+using BaseTraits CCCL_DEPRECATED_BECAUSE("Use cuda::std::numeric_limits and cuda::is_floating_point etc. instead") =
+  detail::BaseTraits<_CATEGORY, _PRIMITIVE, _NULL_TYPE, _UnsignedBits, T>;
 
 template <typename T>
 using FpLimits CCCL_DEPRECATED_BECAUSE("Use cuda::std::numeric_limits instead") = detail::FpLimits<T>;
 
 template <typename T>
-using NumericTraits CCCL_DEPRECATED = detail::NumericTraits<T>;
+using NumericTraits CCCL_DEPRECATED_BECAUSE("Use cuda::std::numeric_limits and cuda::is_floating_point etc. instead") =
+  detail::NumericTraits<T>;
 
 template <typename T>
-using Traits CCCL_DEPRECATED = detail::Traits<T>;
+using Traits
+  CCCL_DEPRECATED_BECAUSE("Use cuda::std::numeric_limits and cuda::is_floating_point etc. instead") = detail::Traits<T>;
 
 namespace detail
 {
@@ -1139,6 +1142,7 @@ template <typename T>
 using unsigned_bits_t = typename unsigned_bits<T>::type;
 } // namespace detail
 
+// TODO(bgruber): do we actually need to expose Twiddle publicly?
 //! Bit twiddling utilities
 template <typename T, typename SFINAE = void>
 struct Twiddle;
