@@ -315,57 +315,55 @@ static constexpr bool __potentially_narrowing =
 // value must be a positive integer otherwise returns false
 // if _From is not an integral, we just check positivity
 _CCCL_TEMPLATE(class _To, class _From)
-_CCCL_REQUIRES(integral<_To> _CCCL_AND integral<_From> _CCCL_AND _CCCL_TRAIT(is_signed, _From)
-                 _CCCL_AND(!__potentially_narrowing<_To, _From>))
+_CCCL_REQUIRES(integral<_To>)
 _LIBCUDACXX_HIDE_FROM_ABI constexpr bool __is_representable_as(_From __value)
 {
-  return __value >= 0;
-}
-
-_CCCL_TEMPLATE(class _To, class _From)
-_CCCL_REQUIRES(integral<_To> _CCCL_AND integral<_From> _CCCL_AND _CCCL_TRAIT(is_signed, _From)
-                 _CCCL_AND __potentially_narrowing<_To, _From>)
-_LIBCUDACXX_HIDE_FROM_ABI constexpr bool __is_representable_as(_From __value)
-{
-  using _To_u   = make_unsigned_t<_To>;
-  using _From_u = make_unsigned_t<_From>;
-  if (__value < 0)
+  (void) __value;
+  if constexpr (integral<_From>)
   {
-    return false;
+    if constexpr (_CCCL_TRAIT(is_signed, _From))
+    {
+      if constexpr (__potentially_narrowing<_To, _From>)
+      {
+        using _To_u   = make_unsigned_t<_To>;
+        using _From_u = make_unsigned_t<_From>;
+        if (__value < 0)
+        {
+          return false;
+        }
+        return static_cast<_To_u>((numeric_limits<_To>::max)()) >= static_cast<_From_u>(__value);
+      }
+      else
+      {
+        return __value >= 0;
+      }
+    }
+    else
+    {
+      if constexpr (__potentially_narrowing<_To, _From>)
+      {
+        using _To_u   = make_unsigned_t<_To>;
+        using _From_u = make_unsigned_t<_From>;
+        return static_cast<_To_u>((numeric_limits<_To>::max)()) >= static_cast<_From_u>(__value);
+      }
+      else
+      {
+        return true;
+      }
+    }
   }
-  return static_cast<_To_u>((numeric_limits<_To>::max)()) >= static_cast<_From_u>(__value);
-}
-
-_CCCL_TEMPLATE(class _To, class _From)
-_CCCL_REQUIRES(integral<_To> _CCCL_AND integral<_From> _CCCL_AND(!_CCCL_TRAIT(is_signed, _From))
-                 _CCCL_AND(!__potentially_narrowing<_To, _From>))
-_LIBCUDACXX_HIDE_FROM_ABI constexpr bool __is_representable_as(_From)
-{
-  return true;
-}
-
-_CCCL_TEMPLATE(class _To, class _From)
-_CCCL_REQUIRES(integral<_To> _CCCL_AND integral<_From> _CCCL_AND(!_CCCL_TRAIT(is_signed, _From))
-                 _CCCL_AND __potentially_narrowing<_To, _From>)
-_LIBCUDACXX_HIDE_FROM_ABI constexpr bool __is_representable_as(_From __value)
-{
-  using _To_u   = make_unsigned_t<_To>;
-  using _From_u = make_unsigned_t<_From>;
-  return static_cast<_To_u>((numeric_limits<_To>::max)()) >= static_cast<_From_u>(__value);
-}
-
-_CCCL_TEMPLATE(class _To, class _From)
-_CCCL_REQUIRES(integral<_To> _CCCL_AND(!integral<_From>) _CCCL_AND _CCCL_TRAIT(is_signed, _To))
-_LIBCUDACXX_HIDE_FROM_ABI constexpr bool __is_representable_as(_From __value)
-{
-  return static_cast<_To>(__value) >= 0;
-}
-
-_CCCL_TEMPLATE(class _To, class _From)
-_CCCL_REQUIRES(integral<_To> _CCCL_AND(!integral<_From>) _CCCL_AND(!_CCCL_TRAIT(is_signed, _To)))
-_LIBCUDACXX_HIDE_FROM_ABI constexpr bool __is_representable_as(_From __value)
-{
-  return true;
+  else
+  {
+    if constexpr (_CCCL_TRAIT(is_signed, _To))
+    {
+      return static_cast<_To>(__value) >= 0;
+    }
+    else
+    {
+      return true;
+    }
+  }
+  _CCCL_UNREACHABLE();
 }
 
 _CCCL_TEMPLATE(class _To, class... _From)
