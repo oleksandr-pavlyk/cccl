@@ -333,12 +333,12 @@ _LIBCUDACXX_HIDE_FROM_ABI constexpr bool __is_representable_as(_From __value)
         }
         return static_cast<_To_u>((numeric_limits<_To>::max)()) >= static_cast<_From_u>(__value);
       }
-      else
+      else // !__potentially_narrowing<_To, _From>
       {
         return __value >= 0;
       }
     }
-    else
+    else // !_CCCL_TRAIT(is_signed, _From)
     {
       if constexpr (__potentially_narrowing<_To, _From>)
       {
@@ -346,19 +346,19 @@ _LIBCUDACXX_HIDE_FROM_ABI constexpr bool __is_representable_as(_From __value)
         using _From_u = make_unsigned_t<_From>;
         return static_cast<_To_u>((numeric_limits<_To>::max)()) >= static_cast<_From_u>(__value);
       }
-      else
+      else // !__potentially_narrowing<_To, _From>
       {
         return true;
       }
     }
   }
-  else
+  else // !integral<_From>
   {
     if constexpr (_CCCL_TRAIT(is_signed, _To))
     {
       return static_cast<_To>(__value) >= 0;
     }
-    else
+    else // !_CCCL_TRAIT(is_signed, _To)
     {
       return true;
     }
@@ -554,12 +554,12 @@ private:
   static constexpr bool __potentially_narrowing = __mdspan_detail::__potentially_narrowing<index_type, _OtherIndexType>;
 
   _CCCL_TEMPLATE(class _OtherIndexType, size_t... _OtherExtents)
-  _CCCL_REQUIRES((rank() > 0) _CCCL_AND __potentially_narrowing<_OtherIndexType>)
+  _CCCL_REQUIRES((__rank_ > 0) _CCCL_AND __potentially_narrowing<_OtherIndexType>)
   _LIBCUDACXX_HIDE_FROM_ABI constexpr extents(__extent_delegate_tag,
                                               const extents<_OtherIndexType, _OtherExtents...>& __other) noexcept
       : _Values(__construct_vals_from_extents(integral_constant<size_t, 0>(), integral_constant<size_t, 0>(), __other))
   {
-    for (size_t __r = 0; __r < rank(); __r++)
+    for (size_t __r = 0; __r != rank(); __r++)
     {
       // Not catching this could lead to out of bounds errors later
       // e.g. dextents<char,1>> e(dextents<unsigned,1>(200)) leads to an extent of -56 on e
@@ -581,7 +581,7 @@ private:
                                               const extents<_OtherIndexType, _OtherExtents...>& __other) noexcept
       : _Values(__construct_vals_from_extents(integral_constant<size_t, 0>(), integral_constant<size_t, 0>(), __other))
   {
-    for (size_t __r = 0; __r < rank(); __r++)
+    for (size_t __r = 0; __r != rank(); __r++)
     {
       // Not catching this could lead to out of bounds errors later
       // e.g. mdspan<int, extents<int, 10>> m = mdspan<int, dextents<int, 1>>(new int[5], 5);
@@ -596,7 +596,7 @@ private:
   _CCCL_TEMPLATE(class _OtherIndexType, size_t... _OtherExtents)
   _CCCL_REQUIRES((rank() == 0))
   _LIBCUDACXX_HIDE_FROM_ABI constexpr extents(__extent_delegate_tag,
-                                              const extents<_OtherIndexType, _OtherExtents...>& __other) noexcept
+                                              const extents<_OtherIndexType, _OtherExtents...>&) noexcept
   {}
 
 public:
@@ -626,7 +626,7 @@ public:
   // Comparison operator
   template <class _OtherIndexType, size_t... _OtherExtents>
   _CCCL_NODISCARD_FRIEND _LIBCUDACXX_HIDE_FROM_ABI constexpr auto
-  operator==(const extents& __lhs, const extents<_OtherIndexType, _OtherExtents...>& __rhs) noexcept
+  operator==(const extents&, const extents<_OtherIndexType, _OtherExtents...>&) noexcept
     _CCCL_TRAILING_REQUIRES(bool)((rank() != sizeof...(_OtherExtents)))
   {
     return false;
@@ -634,7 +634,7 @@ public:
 
   template <class _OtherIndexType, size_t... _OtherExtents>
   _CCCL_NODISCARD_FRIEND _LIBCUDACXX_HIDE_FROM_ABI constexpr auto
-  operator==(const extents& __lhs, const extents<_OtherIndexType, _OtherExtents...>& __rhs) noexcept
+  operator==(const extents&, const extents<_OtherIndexType, _OtherExtents...>&) noexcept
     _CCCL_TRAILING_REQUIRES(bool)((rank() == sizeof...(_OtherExtents) && rank() == 0))
   {
     return true;
