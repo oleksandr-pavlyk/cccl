@@ -34,9 +34,9 @@ __host__ __device__ constexpr bool test()
 {
   constexpr cuda::std::size_t D = cuda::std::dynamic_extent;
 
-#if !defined(_CCCL_NO_DEDUCTION_GUIDES)
+#if !_CCCL_COMPILER(GCC, <, 9)
   test(cuda::std::extents(), cuda::std::extents<size_t>());
-#endif // !_CCCL_NO_DEDUCTION_GUIDES
+#endif // !_CCCL_COMPILER(GCC, <, 9)
   test(cuda::std::extents(1), cuda::std::extents<cuda::std::size_t, D>(1));
   test(cuda::std::extents(1, 2u), cuda::std::extents<cuda::std::size_t, D, D>(1, 2u));
   test(cuda::std::extents(1, 2u, 3, 4, 5, 6, 7, 8, 9),
