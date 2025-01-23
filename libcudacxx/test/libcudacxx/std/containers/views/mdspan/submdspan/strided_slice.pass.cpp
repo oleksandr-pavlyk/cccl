@@ -100,6 +100,7 @@ __host__ __device__ constexpr void test()
     assert(list_initialized.extent == (cuda::std::__integral_constant_like<ExtentType> ? 42 : 2));
     assert(list_initialized.stride == (cuda::std::__integral_constant_like<StrideType> ? 42 : 3));
   }
+#if TEST_STD_VER >= 2020
   { // The const here is load bearing because clang-cuda does not properly initialize otherwise
     const strided_slice aggregate_initialized = {
       .offset = construct_from_int<OffsetType>(1),
@@ -109,6 +110,7 @@ __host__ __device__ constexpr void test()
     assert(aggregate_initialized.extent == (cuda::std::__integral_constant_like<ExtentType> ? 42 : 2));
     assert(aggregate_initialized.stride == (cuda::std::__integral_constant_like<StrideType> ? 42 : 3));
   }
+#endif // TEST_STD_VER >= 2020
 }
 
 __host__ __device__ constexpr bool test()

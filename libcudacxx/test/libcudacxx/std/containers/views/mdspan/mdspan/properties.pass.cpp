@@ -58,8 +58,6 @@
 #include <cuda/std/mdspan>
 #include <cuda/std/type_traits>
 
-#include <type_traits>
-
 #include "../CustomTestLayouts.h"
 #include "../MinimalElementType.h"
 #include "test_macros.h"
