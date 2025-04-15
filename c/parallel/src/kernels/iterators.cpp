@@ -73,6 +73,53 @@ struct __align__(OP_ALIGNMENT) {0} {{
   return std::format(format_template, diff_t, alignment, size, value_t, deref, advance, iter_def);
 };
 
+std::string make_kernel_input_iterator_with_host_increment(
+  std::string_view diff_t,
+  size_t alignment,
+  size_t size,
+  std::string_view iterator_name,
+  std::string_view value_t,
+  std::string_view deref,
+  std::string_view advance)
+{
+  const std::string iter_def = std::format(R"XXX(
+extern "C" __device__ VALUE_T DEREF(const void *self_ptr);
+extern "C" __device__ void ADVANCE(void *self_ptr, DIFF_T offset);
+struct __align__(OP_ALIGNMENT) {0} {{
+  using iterator_category = cuda::std::random_access_iterator_tag;
+  using value_type = VALUE_T;
+  using difference_type = DIFF_T;
+  using pointer = VALUE_T*;
+  using reference = VALUE_T&;
+
+  static_assert(sizeof(difference_type) == sizeof(long long int));
+
+  __device__ inline value_type operator*() const {{
+      const {0} &it = (*this + host_offset);
+      return DEREF(it.data);
+  }}
+  __device__ inline {0}& operator+=(difference_type diff) {{
+      ADVANCE(data, diff);
+      return *this;
+  }}
+  __device__ inline value_type operator[](difference_type diff) const {{
+      const {0} &it = (*this + (diff + host_offset));
+      return DEREF(it.data);
+  }}
+  __device__ inline {0} operator+(difference_type diff) const {{
+      {0} result = *this;
+      result += diff;
+      return result;
+  }}
+  char data[OP_SIZE];
+  difference_type host_offset;
+}};
+)XXX",
+                                           iterator_name);
+
+  return std::format(format_template, diff_t, alignment, size, value_t, deref, advance, iter_def);
+};
+
 std::string make_kernel_input_iterator(
   std::string_view offset_t, std::string_view iterator_name, std::string_view input_value_t, cccl_iterator_t iter)
 {
@@ -82,6 +129,18 @@ std::string make_kernel_input_iterator(
   }
 
   return make_kernel_input_iterator(
+    offset_t, iter.alignment, iter.size, iterator_name, input_value_t, iter.dereference.name, iter.advance.name);
+}
+
+std::string make_kernel_input_iterator_with_host_increment(
+  std::string_view offset_t, std::string_view iterator_name, std::string_view input_value_t, cccl_iterator_t iter)
+{
+  if (iter.type == cccl_iterator_kind_t::CCCL_POINTER)
+  {
+    return {};
+  }
+
+  return make_kernel_input_iterator_with_host_increment(
     offset_t, iter.alignment, iter.size, iterator_name, input_value_t, iter.dereference.name, iter.advance.name);
 }
 
@@ -145,6 +204,73 @@ std::string make_kernel_output_iterator(
   }
 
   return make_kernel_output_iterator(
+    offset_t, iter.alignment, iter.size, iterator_name, input_value_t, iter.dereference.name, iter.advance.name);
+}
+
+std::string make_kernel_output_iterator_with_host_increment(
+  std::string_view diff_t,
+  size_t alignment,
+  size_t size,
+  std::string_view iterator_name,
+  std::string_view value_t,
+  std::string_view deref,
+  std::string_view advance)
+{
+  const std::string iter_def = std::format(R"XXX(
+extern "C" __device__ void DEREF(const void *self_ptr, VALUE_T x);
+extern "C" __device__ void ADVANCE(void *self_ptr, DIFF_T offset);
+struct __align__(OP_ALIGNMENT) {0}_state_t {{
+  char data[OP_SIZE];
+}};
+struct {0}_proxy_t {{
+  __device__ {0}_proxy_t operator=(VALUE_T x) {{
+    DEREF(&state, x);
+    return *this;
+  }}
+  {0}_state_t state;
+}};
+struct {0} {{
+  using iterator_category = cuda::std::random_access_iterator_tag;
+  using difference_type   = DIFF_T;
+  using value_type        = void;
+  using pointer           = {0}_proxy_t*;
+  using reference         = {0}_proxy_t;
+  __device__ {0}_proxy_t operator*() const {{
+      const {0} &it = (*this + host_offset);
+      return {{it.state}};
+  }}
+  __device__ {0}& operator+=(difference_type diff) {{
+      ADVANCE(&state, diff);
+      return *this;
+  }}
+  __device__ {0}_proxy_t operator[](difference_type diff) const {{
+    {0} result = *this;
+    result += (diff + host_offset);
+    return {{ result.state }};
+  }}
+  __device__ {0} operator+(difference_type diff) const {{
+    {0} result = *this;
+    result += diff;
+    return result;
+  }}
+  {0}_state_t state;
+  difference_type host_offset;
+}};
+)XXX",
+                                           iterator_name);
+
+  return std::format(format_template, diff_t, alignment, size, value_t, deref, advance, iter_def);
+};
+
+std::string make_kernel_output_iterator_with_host_increment(
+  std::string_view offset_t, std::string_view iterator_name, std::string_view input_value_t, cccl_iterator_t iter)
+{
+  if (iter.type == cccl_iterator_kind_t::CCCL_POINTER)
+  {
+    return {};
+  }
+
+  return make_kernel_output_iterator_with_host_increment(
     offset_t, iter.alignment, iter.size, iterator_name, input_value_t, iter.dereference.name, iter.advance.name);
 }
 
