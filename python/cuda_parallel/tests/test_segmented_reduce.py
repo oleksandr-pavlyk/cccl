@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 import cuda.parallel.experimental.algorithms as algorithms
+import cuda.parallel.experimental.iterators as iterators
 from cuda.parallel.experimental.struct import gpu_struct
 
 
@@ -108,3 +109,41 @@ def test_segmented_reduce_struct_type():
     expected = h_rgb[np.arange(h_rgb.shape[0]), h_rgb["g"].argmax(axis=-1)]
 
     np.testing.assert_equal(expected["g"], d_out.get()["g"])
+
+
+def test_large_num_segments():
+    input_it = iterators.ConstantIterator(np.int8(1))
+
+    def make_scaler(step):
+        def scale(row_id):
+            return row_id * step
+
+        return scale
+
+    zero = np.int64(0)
+    row_offset = make_scaler(np.int32(125))
+    start_offsets = iterators.TransformIterator(
+        iterators.CountingIterator(zero), row_offset
+    )
+    end_offsets = start_offsets + 1
+
+    num_segments = (2**12 + 1) * 2**12
+    res = cp.empty(num_segments, dtype=cp.int8)
+
+    def my_add(a, b):
+        return a + b
+
+    h_init = np.zeros(tuple(), dtype=np.int8)
+    alg = algorithms.segmented_reduce(
+        input_it, res, start_offsets, end_offsets, my_add, h_init
+    )
+    temp_storage_bytes = alg(
+        None, input_it, res, num_segments, start_offsets, end_offsets, h_init
+    )
+
+    d_temp_storage = cp.empty(temp_storage_bytes, dtype=np.uint8)
+    _ = alg(
+        d_temp_storage, input_it, res, num_segments, start_offsets, end_offsets, h_init
+    )
+
+    assert cp.all(res == 125)
