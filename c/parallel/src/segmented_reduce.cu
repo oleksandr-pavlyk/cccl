@@ -276,12 +276,12 @@ CUresult cccl_device_segmented_reduce_build(
     const std::string input_iterator_src =
       make_kernel_input_iterator(offset_t, "input_iterator_t", input_it_value_t, input_it);
     const std::string output_iterator_src =
-      make_kernel_output_iterator(offset_t, "output_iterator_t", accum_cpp, output_it);
+      make_kernel_output_iterator_with_host_increment(offset_t, "output_iterator_t", accum_cpp, output_it);
 
-    const std::string start_offset_iterator_src =
-      make_kernel_input_iterator(offset_t, "start_offset_iterator_t", start_offset_it_value_t, start_offset_it);
-    const std::string end_offset_iterator_src =
-      make_kernel_input_iterator(offset_t, "end_offset_iterator_t", end_offset_it_value_t, end_offset_it);
+    const std::string start_offset_iterator_src = make_kernel_input_iterator_with_host_increment(
+      offset_t, "start_offset_iterator_t", start_offset_it_value_t, start_offset_it);
+    const std::string end_offset_iterator_src = make_kernel_input_iterator_with_host_increment(
+      offset_t, "end_offset_iterator_t", end_offset_it_value_t, end_offset_it);
 
     const std::string op_src = make_kernel_user_binary_operator(accum_cpp, accum_cpp, accum_cpp, op);
 
@@ -406,9 +406,9 @@ CUresult cccl_device_segmented_reduce(
 
     auto exec_status = cub::DispatchSegmentedReduce<
       indirect_arg_t, // InputIteratorT
-      indirect_arg_t, // OutputIteratorT
-      indirect_arg_t, // BeginSegmentIteratorT
-      indirect_arg_t, // EndSegmentIteratorT
+      indirect_host_incrementable_iterator_t<OffsetT>, // OutputIteratorT
+      indirect_host_incrementable_iterator_t<OffsetT>, // BeginSegmentIteratorT
+      indirect_host_incrementable_iterator_t<OffsetT>, // EndSegmentIteratorT
       OffsetT, // OffsetT
       indirect_arg_t, // ReductionOpT
       indirect_arg_t, // InitT
