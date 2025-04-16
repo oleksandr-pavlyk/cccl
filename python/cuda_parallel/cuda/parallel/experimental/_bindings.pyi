@@ -124,6 +124,7 @@ class Iterator:
         dereference_fn: Op,
         value_type: TypeInfo,
         state=None,
+        host_advance_fn=None,
     ):
         pass
 
@@ -279,7 +280,7 @@ class DeviceMergeSortBuildResult:
         num_items: int,
         binary_op: Op,
         stream,
-    ) -> tuple[int, int]: ...
+    ) -> int: ...
 
 # -----------------
 # DeviceUniqueByKey
@@ -309,7 +310,7 @@ class DeviceUniqueByKeyBuildResult:
         binary_op: Op,
         num_items: int,
         stream,
-    ) -> tuple[int, int]: ...
+    ) -> int: ...
 
 # --------------------
 # DeviceUnaryTransform

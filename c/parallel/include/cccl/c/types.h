@@ -22,6 +22,7 @@
 
 #include <cccl/c/extern_c.h>
 #include <stddef.h>
+#include <stdint.h>
 
 CCCL_C_EXTERN_C_BEGIN
 
@@ -76,6 +77,14 @@ typedef struct cccl_value_t
   void* state;
 } cccl_value_t;
 
+typedef union
+{
+  int64_t signed_offset;
+  uint64_t unsigned_offset;
+} cccl_increment_t;
+
+typedef void (*cccl_host_op_fn_ptr_t)(void*, cccl_increment_t);
+
 typedef struct cccl_iterator_t
 {
   size_t size;
@@ -84,6 +93,7 @@ typedef struct cccl_iterator_t
   cccl_op_t advance;
   cccl_op_t dereference;
   cccl_type_info value_type;
+  cccl_host_op_fn_ptr_t host_advance;
   void* state;
 } cccl_iterator_t;
 
