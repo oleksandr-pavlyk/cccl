@@ -405,7 +405,7 @@ CUresult cccl_device_segmented_reduce(
     CUdevice cu_device;
     check(cuCtxGetDevice(&cu_device));
 
-    cub::DispatchSegmentedReduce<
+    auto dispatch_status = cub::DispatchSegmentedReduce<
       indirect_arg_t, // InputIteratorT
       indirect_iterator_t, // OutputIteratorT
       indirect_iterator_t, // BeginSegmentIteratorT
@@ -431,6 +431,13 @@ CUresult cccl_device_segmented_reduce(
         /* kernel_source */ {build},
         /* launcher_factory &*/ cub::detail::CudaDriverLauncherFactory{cu_device, build.cc},
         /* policy */ {segmented_reduce::get_accumulator_type(op, d_in, init)});
+    if (dispatch_status != cudaSuccess)
+    {
+      fflush(stderr);
+      printf("\nUnexpected error during cccl_device_reduce(): %s\n", cudaGetErrorString(dispatch_status));
+      fflush(stdout);
+      error = CUDA_ERROR_UNKNOWN;
+    }
   }
   catch (const std::exception& exc)
   {
