@@ -10,14 +10,14 @@
 
 #pragma once
 
-#include <cstdlib> // aligned_alloc
 #include <cstring> // for memcpy
 #include <iterator>
 #include <memory> // for make_unique, unique_ptr
+#include <new>
 
 #include <cccl/c/types.h>
 #include <stddef.h> // size_t
-#include <stdint.h> // uint64_t
+#include <stdint.h> // uint64_t, uint8_t
 
 struct indirect_arg_t
 {
@@ -41,19 +41,6 @@ struct indirect_arg_t
   }
 };
 
-class FreeDeleter
-{
-public:
-  FreeDeleter()  = default;
-  ~FreeDeleter() = default;
-
-  template <typename U>
-  void operator()(U* ptr) const
-  {
-    std::free(ptr);
-  }
-};
-
 template <typename OffsetT>
 struct indirect_host_incrementable_iterator_t
 {
@@ -67,7 +54,7 @@ struct indirect_host_incrementable_iterator_t
 
   void* state_ptr;
   OffsetT* host_offset_ptr;
-  std::unique_ptr<void, FreeDeleter> owner;
+  std::unique_ptr<uint8_t[]> owner;
   size_t value_size;
   size_t allocation_nbytes;
 
@@ -85,12 +72,12 @@ struct indirect_host_incrementable_iterator_t
       const size_t offset_ptr_offset = align_up(it.size, sizeof(OffsetT));
       allocation_nbytes              = offset_ptr_offset + sizeof(OffsetT);
 
-      owner = std::unique_ptr<void, FreeDeleter>(std::aligned_alloc(it.alignment, allocation_nbytes), FreeDeleter{});
+      owner     = std::unique_ptr<uint8_t[]>(new (std::align_val_t(it.alignment)) uint8_t[allocation_nbytes]);
       state_ptr = owner.get();
-      // initialized host_offset variable to zero
+      // initialized host_offset variable and possible padding bytes
       std::memset(state_ptr, 0, allocation_nbytes);
 
-      host_offset_ptr = reinterpret_cast<OffsetT*>(reinterpret_cast<char*>(state_ptr) + offset_ptr_offset);
+      host_offset_ptr = reinterpret_cast<OffsetT*>(static_cast<char*>(state_ptr) + offset_ptr_offset);
       std::memcpy(state_ptr, it.state, it.size);
     }
     else
@@ -109,13 +96,19 @@ struct indirect_host_incrementable_iterator_t
   {
     if (other.owner)
     {
-      size_t alignment  = reinterpret_cast<uintptr_t>(other.state_ptr) & 63;
+      constexpr uintptr_t align_bytes = alignof(uint64_t);
+      constexpr uintptr_t align_mask  = (align_bytes - 1);
+
+      size_t alignment = reinterpret_cast<uintptr_t>(other.state_ptr) & align_mask;
+      alignment += (align_bytes * (!alignment));
+
       allocation_nbytes = other.allocation_nbytes;
-      owner     = std::unique_ptr<void, FreeDeleter>(std::aligned_alloc(alignment, allocation_nbytes), FreeDeleter{});
-      state_ptr = owner.get();
-      size_t relative_offset =
-        (reinterpret_cast<char*>(other.host_offset_ptr) - reinterpret_cast<char*>(other.state_ptr));
-      host_offset_ptr = reinterpret_cast<OffsetT*>(reinterpret_cast<char*>(state_ptr) + relative_offset);
+      owner             = std::unique_ptr<uint8_t[]>(new (std::align_val_t(alignment)) uint8_t[allocation_nbytes]);
+
+      state_ptr              = owner.get();
+      size_t relative_offset = (reinterpret_cast<char*>(other.host_offset_ptr) - static_cast<char*>(other.state_ptr));
+      host_offset_ptr        = reinterpret_cast<OffsetT*>(static_cast<char*>(state_ptr) + relative_offset);
+
       std::memcpy(state_ptr, other.owner.get(), allocation_nbytes);
     }
     else
