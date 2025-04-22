@@ -147,3 +147,58 @@ def test_large_num_segments():
     )
 
     assert cp.all(res == 125)
+
+
+def test_large_num_segments2():
+    def make_difference(idx: np.int64) -> np.int8:
+        def Fu(idx: np.int64) -> np.int8:
+            i8 = np.int8(idx % 5) + np.int8(idx % 3)
+            f = (i8 * (i8 + 1)) % 7
+            return f
+
+        return (Fu(idx + 1) - Fu(idx)) % 7
+
+    input_it = iterators.TransformIterator(
+        iterators.CountingIterator(np.int64(0)), make_difference
+    )
+
+    def make_scaler(step):
+        def scale(row_id):
+            return row_id * step
+
+        return scale
+
+    segment_size = 116
+    offset0 = np.int64(0)
+    row_offset = make_scaler(np.int64(segment_size))
+    start_offsets = iterators.TransformIterator(
+        iterators.CountingIterator(offset0), row_offset
+    )
+    end_offsets = start_offsets + 1
+
+    num_segments = (2**15 + 2**3) * 2**16
+    res = cp.full(num_segments, fill_value=-1, dtype=cp.int8)
+    assert res.size == num_segments
+
+    def my_add(a, b):
+        return (a + b) % 7
+
+    h_init = np.zeros(tuple(), dtype=np.int8)
+    alg = algorithms.segmented_reduce(
+        input_it, res, start_offsets, end_offsets, my_add, h_init
+    )
+
+    temp_storage_bytes = alg(
+        None, input_it, res, num_segments, start_offsets, end_offsets, h_init
+    )
+
+    d_temp_storage = cp.empty(temp_storage_bytes, dtype=np.uint8)
+    _ = alg(
+        d_temp_storage, input_it, res, num_segments, start_offsets, end_offsets, h_init
+    )
+
+    iota = cp.arange(
+        (num_segments + 1) * segment_size, step=segment_size, dtype=cp.int64
+    )
+    i = cp.asarray(iota % 5, dtype=cp.int8) + cp.asarray(iota % 3, dtype=cp.int8)
+    assert cp.all(res == cp.diff(i * (i + 1) % 7) % 7)
