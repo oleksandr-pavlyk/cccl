@@ -205,9 +205,9 @@ def test_large_num_segments2():
 
 
 def test_large_num_segments3():
-    input_it = iterators.ConstantIterator(np.int8(1))
+    input_it = iterators.ConstantIterator(np.int16(1))
 
-    def offset_functor(p: np.int64):
+    def offset_functor(m0: np.int64, p: np.int64):
         def offset_value(n: np.int64):
             """
             Offset value computes closed form for
@@ -222,14 +222,14 @@ def test_large_num_segments3():
             p2 = (p * (p - 1)) // 2
             r2 = (r * (r + 1)) // 2
 
-            offset_val = n + 1 + q * p2 + r2
+            offset_val = (n + 1) * m0 + q * p2 + r2
             return offset_val
 
         return offset_value
 
-    p = 113
+    m0, p = 265, 163
     offsets_it = iterators.TransformIterator(
-        iterators.CountingIterator(np.int64(-1)), offset_functor(p)
+        iterators.CountingIterator(np.int64(-1)), offset_functor(m0, p)
     )
     start_offsets = offsets_it
     end_offsets = offsets_it + 1
@@ -238,13 +238,14 @@ def test_large_num_segments3():
         return a + b
 
     num_segments = (2**15 + 2**3) * 2**16
-    res = cp.full(num_segments, fill_value=-1, dtype=cp.int8)
+    res = cp.full(num_segments, fill_value=-1, dtype=cp.int16)
     assert res.size == num_segments
 
-    h_init = np.zeros(tuple(), dtype=np.int8)
+    h_init = np.zeros(tuple(), dtype=np.int16)
     alg = algorithms.segmented_reduce(
         input_it, res, start_offsets, end_offsets, _plus, h_init
     )
+
     temp_storage_bytes = alg(
         None, input_it, res, num_segments, start_offsets, end_offsets, h_init
     )
@@ -254,5 +255,5 @@ def test_large_num_segments3():
         d_temp_storage, input_it, res, num_segments, start_offsets, end_offsets, h_init
     )
 
-    expected = cp.tile(cp.arange(1, p + 1, dtype=cp.int8), (res.size + p - 1) // p)
+    expected = cp.tile(cp.arange(m0, p + m0, dtype=cp.int16), (res.size + p - 1) // p)
     assert cp.all(res == expected[: res.size])
