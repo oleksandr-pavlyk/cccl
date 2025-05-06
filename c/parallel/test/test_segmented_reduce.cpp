@@ -302,20 +302,21 @@ struct pair
 
 operation_t make_pair_plus()
 {
-  std::string device_op_name                       = "plus_pair";
-  constexpr std::string_view plus_pair_op_template = R"XXX(
-    struct pair {{
-      short a;
-      size_t b;
-    }};
-    extern "C" __device__ void {0}(void* lhs_ptr, void* rhs_ptr, void* out_ptr) {{
-      pair* lhs = static_cast<pair*>(lhs_ptr);
-      pair* rhs = static_cast<pair*>(rhs_ptr);
-      pair* out = static_cast<pair*>(out_ptr);
-      *out = pair{{ lhs->a + rhs->a, lhs->b + rhs->b }};
-    }}
-    )XXX";
-  std::string plus_pair_op_src                     = std::format(plus_pair_op_template, device_op_name);
+  static constexpr std::string device_op_name             = "plus_pair";
+  static constexpr std::string_view plus_pair_op_template = R"XXX(
+struct pair {{
+  short a;
+  size_t b;
+}};
+extern "C" __device__ void {0}(void* lhs_ptr, void* rhs_ptr, void* out_ptr) {{
+  pair* lhs = static_cast<pair*>(lhs_ptr);
+  pair* rhs = static_cast<pair*>(rhs_ptr);
+  pair* out = static_cast<pair*>(out_ptr);
+  *out = pair{{ lhs->a + rhs->a, lhs->b + rhs->b }};
+}}
+)XXX";
+
+  std::string plus_pair_op_src = std::format(plus_pair_op_template, device_op_name);
 
   return make_operation(device_op_name, plus_pair_op_src);
 }
@@ -768,8 +769,8 @@ extern "C" __device__ {2} {0}({1} *functor_state, {2} n) {{
   using HostTransformStateT = decltype(start_offsets_it.state);
 
   // end_offsets_it reuses advance/dereference definitions provided by start_offsets_it
-  constexpr std::string_view empty_src = "";
-  auto end_offsets_it                  = make_iterator<IndexT, HostTransformStateT>(
+  static constexpr std::string_view empty_src = "";
+  auto end_offsets_it                         = make_iterator<IndexT, HostTransformStateT>(
     {start_offsets_it.state_name, empty_src},
     {start_offsets_it.advance.name, empty_src},
     {start_offsets_it.dereference.name, empty_src});
@@ -815,8 +816,8 @@ extern "C" __device__ void {0}(const void *x1_p, const void *x2_p, void *out_p) 
     test_key);
 
   // Build validation call using device_reduce
-  using CmpT                             = int;
-  constexpr std::string_view cmp_ty_name = "int";
+  using CmpT                                    = int;
+  static constexpr std::string_view cmp_ty_name = "int";
 
   // check functor transforms computed values to comparison value against the expected result
   static constexpr std::string_view check_functor_name           = "check_functor";
