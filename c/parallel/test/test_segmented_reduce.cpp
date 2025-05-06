@@ -4,36 +4,55 @@
 #include <cstdint>
 #include <cstdlib>
 #include <numeric>
+#include <optional> // std::optional
+#include <string>
 
-#include "cccl/c/types.h"
+#include "algorithm_execution.h"
+#include "build_result_caching.h"
 #include "test_util.h"
 #include <cccl/c/segmented_reduce.h>
+#include <cccl/c/types.h>
 
-void segmented_reduce(
-  cccl_iterator_t input,
-  cccl_iterator_t output,
-  uint64_t num_segments,
-  cccl_iterator_t start_offsets,
-  cccl_iterator_t end_offsets,
-  cccl_op_t op,
-  cccl_value_t init)
+using BuildResultT = cccl_device_segmented_reduce_build_result_t;
+
+struct segmented_reduce_cleanup
 {
-  cudaDeviceProp deviceProp;
-  cudaGetDeviceProperties(&deviceProp, 0);
+  CUresult operator()(BuildResultT* build_data) const noexcept
+  {
+    return cccl_device_segmented_reduce_cleanup(build_data);
+  }
+};
 
-  const int cc_major = deviceProp.major;
-  const int cc_minor = deviceProp.minor;
+using segmented_reduce_deleter = BuildResultDeleter<BuildResultT, segmented_reduce_cleanup>;
+using segmented_reduce_build_cache_t =
+  build_cache_t<std::string, result_wrapper_t<BuildResultT, segmented_reduce_deleter>>;
 
-  const char* cub_path        = TEST_CUB_PATH;
-  const char* thrust_path     = TEST_THRUST_PATH;
-  const char* libcudacxx_path = TEST_LIBCUDACXX_PATH;
-  const char* ctk_path        = TEST_CTK_PATH;
+template <typename Tag>
+auto& get_cache()
+{
+  return fixture<segmented_reduce_build_cache_t, Tag>::get_or_create().get_value();
+}
 
-  cccl_device_segmented_reduce_build_result_t build;
-  REQUIRE(
-    CUDA_SUCCESS
-    == cccl_device_segmented_reduce_build(
-      &build,
+struct segmented_reduce_build
+{
+  CUresult operator()(
+    BuildResultT* build_ptr,
+    cccl_iterator_t input,
+    cccl_iterator_t output,
+    uint64_t,
+    cccl_iterator_t start_offsets,
+    cccl_iterator_t end_offsets,
+    cccl_op_t op,
+    cccl_value_t init,
+    int cc_major,
+    int cc_minor,
+    const char* cub_path,
+    const char* thrust_path,
+    const char* libcudacxx_path,
+    const char* ctk_path) const noexcept
+  {
+    return cccl_device_segmented_reduce_build(
+      build_ptr,
       input,
       output,
       start_offsets,
@@ -45,27 +64,38 @@ void segmented_reduce(
       cub_path,
       thrust_path,
       libcudacxx_path,
-      ctk_path));
+      ctk_path);
+  }
+};
 
-  const std::string sass = inspect_sass(build.cubin, build.cubin_size);
+struct segmented_reduce_run
+{
+  template <typename... Ts>
+  CUresult operator()(Ts... args) const noexcept
+  {
+    return cccl_device_segmented_reduce(args...);
+  }
+};
 
-  REQUIRE(sass.find("LDL") == std::string::npos);
-  REQUIRE(sass.find("STL") == std::string::npos);
-
-  size_t temp_storage_bytes = 0;
-  REQUIRE(CUDA_SUCCESS
-          == cccl_device_segmented_reduce(
-            build, nullptr, &temp_storage_bytes, input, output, num_segments, start_offsets, end_offsets, op, init, 0));
-
-  pointer_t<uint8_t> temp_storage(temp_storage_bytes);
-
-  REQUIRE(
-    CUDA_SUCCESS
-    == cccl_device_segmented_reduce(
-      build, temp_storage.ptr, &temp_storage_bytes, input, output, num_segments, start_offsets, end_offsets, op, init, 0));
-
-  REQUIRE(CUDA_SUCCESS == cccl_device_segmented_reduce_cleanup(&build));
+template <typename BuildCache = segmented_reduce_build_cache_t, typename KeyT = std::string>
+void segmented_reduce(
+  cccl_iterator_t input,
+  cccl_iterator_t output,
+  uint64_t num_segments,
+  cccl_iterator_t start_offsets,
+  cccl_iterator_t end_offsets,
+  cccl_op_t op,
+  cccl_value_t init,
+  std::optional<BuildCache>& cache,
+  const std::optional<KeyT>& lookup_key)
+{
+  AlgorithmExecute<BuildResultT, segmented_reduce_build, segmented_reduce_cleanup, segmented_reduce_run, BuildCache, KeyT>(
+    cache, lookup_key, input, output, num_segments, start_offsets, end_offsets, op, init);
 }
+
+// ==============
+//   Test section
+// ==============
 
 using SizeT = unsigned long long;
 
@@ -75,7 +105,7 @@ struct row_offset_iterator_state_t
   SizeT row_size;
 };
 
-// FIXME: can we cache compiled code for the same TesType and reuse it for different n_rows, n_cols
+struct SegmentedReduce_SumOverRows_Fixture_Tag;
 C2H_TEST_LIST("segmented_reduce can sum over rows of matrix with integral type",
               "[segmented_reduce]",
               std::int32_t,
@@ -148,7 +178,10 @@ extern "C" __device__ unsigned long long {0}(
   operation_t op = make_operation("op", get_reduce_op(get_type_info<TestType>().type));
   value_t<TestType> init{0};
 
-  segmented_reduce(input_ptr, output_ptr, n_rows, start_offset_it, end_offset_it, op, init);
+  auto& build_cache    = get_cache<SegmentedReduce_SumOverRows_Fixture_Tag>();
+  const auto& test_key = make_key<TestType>();
+
+  segmented_reduce(input_ptr, output_ptr, n_rows, start_offset_it, end_offset_it, op, init, build_cache, test_key);
 
   auto host_input_it  = host_input.begin();
   auto host_output_it = host_output.begin();
@@ -161,6 +194,7 @@ extern "C" __device__ unsigned long long {0}(
   REQUIRE(host_output == std::vector<TestType>(output_ptr));
 }
 
+struct SegmentedReduce_WellKnownOp_SumOverRows_Fixture_Tag;
 C2H_TEST_LIST("segmented_reduce can sum over rows of matrix with integral type with well-known operations",
               "[segmented_reduce][well_known]",
               std::int32_t,
@@ -233,7 +267,10 @@ extern "C" __device__ unsigned long long {0}(
   cccl_op_t op = make_well_known_binary_operation();
   value_t<TestType> init{0};
 
-  segmented_reduce(input_ptr, output_ptr, n_rows, start_offset_it, end_offset_it, op, init);
+  auto& build_cache    = get_cache<SegmentedReduce_WellKnownOp_SumOverRows_Fixture_Tag>();
+  const auto& test_key = make_key<TestType>();
+
+  segmented_reduce(input_ptr, output_ptr, n_rows, start_offset_it, end_offset_it, op, init, build_cache, test_key);
 
   auto host_input_it  = host_input.begin();
   auto host_output_it = host_output.begin();
@@ -257,6 +294,27 @@ struct pair
   }
 };
 
+operation_t make_pair_plus()
+{
+  std::string device_op_name                       = "plus_pair";
+  constexpr std::string_view plus_pair_op_template = R"XXX(
+    struct pair {{
+      short a;
+      size_t b;
+    }};
+    extern "C" __device__ void {0}(void* lhs_ptr, void* rhs_ptr, void* out_ptr) {{
+      pair* lhs = static_cast<pair*>(lhs_ptr);
+      pair* rhs = static_cast<pair*>(rhs_ptr);
+      pair* out = static_cast<pair*>(out_ptr);
+      *out = pair{{ lhs->a + rhs->a, lhs->b + rhs->b }};
+    }}
+    )XXX";
+  std::string plus_pair_op_src                     = std::format(plus_pair_op_template, device_op_name);
+
+  return make_operation(device_op_name, plus_pair_op_src);
+}
+
+struct SegmentedReduce_CustomTypes_Fixture_Tag;
 C2H_TEST("SegmentedReduce works with custom types", "[segmented_reduce]")
 {
   const std::size_t n_segments = 50;
@@ -286,23 +344,14 @@ C2H_TEST("SegmentedReduce works with custom types", "[segmented_reduce]")
   auto end_offset_it   = start_offset_it;
   end_offset_it.state  = offset_ptr.ptr + 1;
 
-  std::string device_op_name                       = "plus_pair";
-  constexpr std::string_view plus_pair_op_template = R"XXX(
-struct pair {{
-  short a;
-  size_t b;
-}};
-extern "C" __device__ pair {0}(pair lhs, pair rhs) {{
-  return pair{{ lhs.a + rhs.a, lhs.b + rhs.b }};
-}}
-)XXX";
-  std::string plus_pair_op_src                     = std::format(plus_pair_op_template, device_op_name);
-
-  operation_t op = make_operation(device_op_name, plus_pair_op_src);
+  operation_t op = make_pair_plus();
   pair v0        = pair{4, 2};
   value_t<pair> init{v0};
 
-  segmented_reduce(input_ptr, output_ptr, n_segments, start_offset_it, end_offset_it, op, init);
+  auto& build_cache    = get_cache<SegmentedReduce_CustomTypes_Fixture_Tag>();
+  const auto& test_key = make_key<pair>();
+
+  segmented_reduce(input_ptr, output_ptr, n_segments, start_offset_it, end_offset_it, op, init, build_cache, test_key);
 
   for (std::size_t i = 0; i < n_segments; ++i)
   {
@@ -317,6 +366,7 @@ extern "C" __device__ pair {0}(pair lhs, pair rhs) {{
   REQUIRE(host_output == host_actual);
 }
 
+struct SegmentedReduce_WellKnownOp_CustomType_Fixture_Tag;
 C2H_TEST("SegmentedReduce works with custom types with well-known operations", "[segmented_reduce][well_known]")
 {
   const std::size_t n_segments = 50;
@@ -346,25 +396,18 @@ C2H_TEST("SegmentedReduce works with custom types with well-known operations", "
   auto end_offset_it   = start_offset_it;
   end_offset_it.state  = offset_ptr.ptr + 1;
 
-  std::string device_op_name                       = "plus_pair";
-  constexpr std::string_view plus_pair_op_template = R"XXX(
-struct pair {{
-  short a;
-  size_t b;
-}};
-extern "C" __device__ pair {0}(pair lhs, pair rhs) {{
-  return pair{{ lhs.a + rhs.a, lhs.b + rhs.b }};
-}}
-)XXX";
-  std::string plus_pair_op_src                     = std::format(plus_pair_op_template, device_op_name);
-
-  operation_t op_state = make_operation(device_op_name, plus_pair_op_src);
+  // Important do not elide op_state variable, it ensure lifetime of strings
+  // reference in ccl_op_t
+  operation_t op_state = make_pair_plus();
   cccl_op_t op         = op_state;
   op.type              = cccl_op_kind_t::CCCL_PLUS;
   pair v0              = pair{4, 2};
   value_t<pair> init{v0};
 
-  segmented_reduce(input_ptr, output_ptr, n_segments, start_offset_it, end_offset_it, op, init);
+  auto& build_cache    = get_cache<SegmentedReduce_WellKnownOp_CustomType_Fixture_Tag>();
+  const auto& test_key = make_key<pair>();
+
+  segmented_reduce(input_ptr, output_ptr, n_segments, start_offset_it, end_offset_it, op, init, build_cache, test_key);
 
   for (std::size_t i = 0; i < n_segments; ++i)
   {
@@ -393,6 +436,7 @@ struct input_transposed_iterator_state_t
   SizeT n_cols;
 };
 
+struct SegmentedReduce_InputIterators_Fixture_Tag;
 C2H_TEST("SegmentedReduce works with input iterators", "[segmented_reduce]")
 {
   // Sum over columns of matrix
@@ -503,7 +547,11 @@ extern "C" __device__ {1} {0}({2} *state) {{
   operation_t op = make_operation("op", get_reduce_op(get_type_info<ValueT>().type));
   value_t<ValueT> init{0};
 
-  segmented_reduce(input_transposed_iterator_it, output_ptr, n_cols, start_offset_it, end_offset_it, op, init);
+  auto& build_cache    = get_cache<SegmentedReduce_InputIterators_Fixture_Tag>();
+  const auto& test_key = make_key<ValueT>();
+
+  segmented_reduce(
+    input_transposed_iterator_it, output_ptr, n_cols, start_offset_it, end_offset_it, op, init, build_cache, test_key);
 
   for (size_t col_id = 0; col_id < n_cols; ++col_id)
   {
