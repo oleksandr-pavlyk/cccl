@@ -43,8 +43,30 @@ cdef extern from "cccl/c/types.h":
         CCCL_STORAGE
 
     ctypedef enum cccl_op_kind_t:
-       CCCL_STATELESS
-       CCCL_STATEFUL
+        CCCL_STATELESS
+        CCCL_STATEFUL
+        CCCL_PLUS
+        CCCL_MINUS
+        CCCL_MULTIPLIES
+        CCCL_DIVIDES
+        CCCL_MODULUS
+        CCCL_EQUAL_TO
+        CCCL_NOT_EQUAL_TO
+        CCCL_GREATER
+        CCCL_LESS
+        CCCL_GREATER_EQUAL
+        CCCL_LESS_EQUAL
+        CCCL_LOGICAL_AND
+        CCCL_LOGICAL_OR
+        CCCL_LOGICAL_NOT
+        CCCL_BIT_AND
+        CCCL_BIT_OR
+        CCCL_BIT_XOR
+        CCCL_BIT_NOT
+        CCCL_IDENTITY
+        CCCL_NEGATE
+        CCCL_MINIMUM
+        CCCL_MAXIMUM
 
     ctypedef enum cccl_iterator_kind_t:
        CCCL_POINTER
@@ -343,11 +365,55 @@ cdef class Enumeration_OpKind(IntEnumerationBase):
     "Enumeration of operator kinds"
     cdef IntEnumerationMember _stateless
     cdef IntEnumerationMember _stateful
+    cdef IntEnumerationMember _plus
+    cdef IntEnumerationMember _minus
+    cdef IntEnumerationMember _multiplies
+    cdef IntEnumerationMember _divides
+    cdef IntEnumerationMember _modulus
+    cdef IntEnumerationMember _equal_to
+    cdef IntEnumerationMember _not_equal_to
+    cdef IntEnumerationMember _greater
+    cdef IntEnumerationMember _less
+    cdef IntEnumerationMember _greater_equal
+    cdef IntEnumerationMember _less_equal
+    cdef IntEnumerationMember _logical_and
+    cdef IntEnumerationMember _logical_or
+    cdef IntEnumerationMember _logical_not
+    cdef IntEnumerationMember _bit_and
+    cdef IntEnumerationMember _bit_or
+    cdef IntEnumerationMember _bit_xor
+    cdef IntEnumerationMember _bit_not
+    cdef IntEnumerationMember _identity
+    cdef IntEnumerationMember _negate
+    cdef IntEnumerationMember _minimum
+    cdef IntEnumerationMember _maximum
 
     def __cinit__(self):
         self.enum_name = "OpKindEnum"
         self._stateless = self.make_STATELESS()
         self._stateful = self.make_STATEFUL()
+        self._plus = self.make_PLUS()
+        self._minus = self.make_MINUS()
+        self._multiplies = self.make_MULTIPLIES()
+        self._divides = self.make_DIVIDES()
+        self._modulus = self.make_MODULUS()
+        self._equal_to = self.make_EQUAL_TO()
+        self._not_equal_to = self.make_NOT_EQUAL_TO()
+        self._greater = self.make_GREATER()
+        self._less = self.make_LESS()
+        self._greater_equal = self.make_GREATER_EQUAL()
+        self._less_equal = self.make_LESS_EQUAL()
+        self._logical_and = self.make_LOGICAL_AND()
+        self._logical_or = self.make_LOGICAL_OR()
+        self._logical_not = self.make_LOGICAL_NOT()
+        self._bit_and = self.make_BIT_AND()
+        self._bit_or = self.make_BIT_OR()
+        self._bit_xor = self.make_BIT_XOR()
+        self._bit_not = self.make_BIT_NOT()
+        self._identity = self.make_IDENTITY()
+        self._negate = self.make_NEGATE()
+        self._minimum = self.make_MINIMUM()
+        self._maximum = self.make_MAXIMUM()
 
     cdef IntEnumerationMember make_STATELESS(self):
         cdef str prop_name = "STATELESS"
@@ -367,6 +433,203 @@ cdef class Enumeration_OpKind(IntEnumerationBase):
             cccl_op_kind_t.CCCL_STATEFUL
         )
 
+    cdef IntEnumerationMember make_PLUS(self):
+        cdef str prop_name = "PLUS"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_PLUS
+        )
+
+    cdef IntEnumerationMember make_MINUS(self):
+        cdef str prop_name = "MINUS"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_MINUS
+        )
+
+    cdef IntEnumerationMember make_MULTIPLIES(self):
+        cdef str prop_name = "MULTIPLIES"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_MULTIPLIES
+        )
+
+    cdef IntEnumerationMember make_DIVIDES(self):
+        cdef str prop_name = "DIVIDES"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_DIVIDES
+        )
+
+    cdef IntEnumerationMember make_MODULUS(self):
+        cdef str prop_name = "MODULUS"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_MODULUS
+        )
+
+    cdef IntEnumerationMember make_EQUAL_TO(self):
+        cdef str prop_name = "EQUAL_TO"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_EQUAL_TO
+        )
+
+    cdef IntEnumerationMember make_NOT_EQUAL_TO(self):
+        cdef str prop_name = "NOT_EQUAL_TO"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_NOT_EQUAL_TO
+        )
+
+    cdef IntEnumerationMember make_GREATER(self):
+        cdef str prop_name = "GREATER"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_GREATER
+        )
+
+    cdef IntEnumerationMember make_LESS(self):
+        cdef str prop_name = "LESS"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_LESS
+        )
+
+    cdef IntEnumerationMember make_GREATER_EQUAL(self):
+        cdef str prop_name = "GREATER_EQUAL"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_GREATER_EQUAL
+        )
+
+    cdef IntEnumerationMember make_LESS_EQUAL(self):
+        cdef str prop_name = "LESS_EQUAL"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_LESS_EQUAL
+        )
+
+    cdef IntEnumerationMember make_LOGICAL_AND(self):
+        cdef str prop_name = "LOGICAL_AND"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_LOGICAL_AND
+        )
+
+    cdef IntEnumerationMember make_LOGICAL_OR(self):
+        cdef str prop_name = "LOGICAL_OR"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_LOGICAL_OR
+        )
+
+    cdef IntEnumerationMember make_LOGICAL_NOT(self):
+        cdef str prop_name = "LOGICAL_NOT"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_LOGICAL_NOT
+        )
+
+    cdef IntEnumerationMember make_BIT_AND(self):
+        cdef str prop_name = "BIT_AND"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_BIT_AND
+        )
+
+    cdef IntEnumerationMember make_BIT_OR(self):
+        cdef str prop_name = "BIT_OR"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_BIT_OR
+        )
+
+    cdef IntEnumerationMember make_BIT_XOR(self):
+        cdef str prop_name = "BIT_XOR"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_BIT_XOR
+        )
+
+    cdef IntEnumerationMember make_BIT_NOT(self):
+        cdef str prop_name = "BIT_NOT"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_BIT_NOT
+        )
+
+    cdef IntEnumerationMember make_IDENTITY(self):
+        cdef str prop_name = "IDENTITY"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_IDENTITY
+        )
+
+    cdef IntEnumerationMember make_NEGATE(self):
+        cdef str prop_name = "NEGATE"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_NEGATE
+        )
+
+    cdef IntEnumerationMember make_MINIMUM(self):
+        cdef str prop_name = "MINIMUM"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_MINIMUM
+        )
+
+    cdef IntEnumerationMember make_MAXIMUM(self):
+        cdef str prop_name = "MAXIMUM"
+        return IntEnumerationMember(
+            type(self),
+            self.enum_name,
+            prop_name,
+            cccl_op_kind_t.CCCL_MAXIMUM
+        )
 
     @property
     def STATELESS(self):
@@ -375,6 +638,94 @@ cdef class Enumeration_OpKind(IntEnumerationBase):
     @property
     def STATEFUL(self):
         return self._stateful
+
+    @property
+    def PLUS(self):
+        return self._plus
+
+    @property
+    def MINUS(self):
+        return self._minus
+
+    @property
+    def MULTIPLIES(self):
+        return self._multiplies
+
+    @property
+    def DIVIDES(self):
+        return self._divides
+
+    @property
+    def MODULUS(self):
+        return self._modulus
+
+    @property
+    def EQUAL_TO(self):
+        return self._equal_to
+
+    @property
+    def NOT_EQUAL_TO(self):
+        return self._not_equal_to
+
+    @property
+    def GREATER(self):
+        return self._greater
+
+    @property
+    def LESS(self):
+        return self._less
+
+    @property
+    def GREATER_EQUAL(self):
+        return self._greater_equal
+
+    @property
+    def LESS_EQUAL(self):
+        return self._less_equal
+
+    @property
+    def LOGICAL_AND(self):
+        return self._logical_and
+
+    @property
+    def LOGICAL_OR(self):
+        return self._logical_or
+
+    @property
+    def LOGICAL_NOT(self):
+        return self._logical_not
+
+    @property
+    def BIT_AND(self):
+        return self._bit_and
+
+    @property
+    def BIT_OR(self):
+        return self._bit_or
+
+    @property
+    def BIT_XOR(self):
+        return self._bit_xor
+
+    @property
+    def BIT_NOT(self):
+        return self._bit_not
+
+    @property
+    def IDENTITY(self):
+        return self._identity
+
+    @property
+    def NEGATE(self):
+        return self._negate
+
+    @property
+    def MINIMUM(self):
+        return self._minimum
+
+    @property
+    def MAXIMUM(self):
+        return self._maximum
 
 
 cdef class Enumeration_IteratorKind(IntEnumerationBase):
@@ -496,7 +847,6 @@ cdef class Op:
     cdef bytes state_bytes
     cdef cccl_op_t op_data
 
-
     cdef void _set_members(self, cccl_op_kind_t op_type, str name, bytes lto_ir, bytes state, int state_alignment):
         memset(&self.op_data, 0, sizeof(cccl_op_t))
         # Reference Python objects in the class to ensure lifetime
@@ -511,7 +861,6 @@ cdef class Op:
         self.op_data.size = len(state)
         self.op_data.alignment = state_alignment
         self.op_data.state = <void *><const char *>state
-
 
     def __cinit__(self, /, *, name = None, operator_type = OpKind.STATELESS, ltoir = None, state = None, state_alignment = 1):
         if name is None and ltoir is None:
