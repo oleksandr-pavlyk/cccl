@@ -92,6 +92,25 @@ def test_Op_params_stateless():
     assert isinstance(res, bindings.Op)
 
 
+def test_Op_params_known_op():
+    op_kind = bindings.OpKind
+    all_op_enum_members = [
+        m
+        for a in dir(op_kind)
+        if isinstance(m := getattr(op_kind, a), bindings.IntEnumerationMember)
+    ]
+    actual_codes = set(m.value for m in all_op_enum_members)
+    expected_codes = set(range(len(all_op_enum_members)))
+
+    assert actual_codes == expected_codes
+
+    for m in all_op_enum_members:
+        if m in [op_kind.STATEFUL, op_kind.STATELESS]:
+            continue
+        res = bindings.Op(operator_type=m)
+        assert isinstance(res, bindings.Op), f"Test failed for {m}"
+
+
 def test_Op_params_stateful():
     fake_ltoir = b"\x42" * 127
     fake_state = b"\x01" * 16
