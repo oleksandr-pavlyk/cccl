@@ -13,7 +13,12 @@ import numpy as np
 from .. import _bindings
 from .. import _cccl_interop as cccl
 from .._caching import CachableFunction, cache_with_key
-from .._cccl_interop import call_build, set_cccl_iterator_state, to_cccl_value_state
+from .._cccl_interop import (
+    KnownOp,
+    call_build,
+    set_cccl_iterator_state,
+    to_cccl_value_state,
+)
 from .._utils import protocols
 from .._utils.protocols import get_data_pointer, validate_and_get_stream
 from .._utils.temp_storage_buffer import TempStorageBuffer
@@ -35,7 +40,7 @@ class _Reduce:
         self,
         d_in: DeviceArrayLike | IteratorBase,
         d_out: DeviceArrayLike,
-        op: Callable,
+        op: Callable | KnownOp,
         h_init: np.ndarray | GpuStruct,
     ):
         self.d_in_cccl = cccl.to_cccl_iter(d_in)
@@ -93,14 +98,14 @@ class _Reduce:
 def make_cache_key(
     d_in: DeviceArrayLike | IteratorBase,
     d_out: DeviceArrayLike,
-    op: Callable,
+    op: Callable | KnownOp,
     h_init: np.ndarray,
 ):
     d_in_key = (
         d_in.kind if isinstance(d_in, IteratorBase) else protocols.get_dtype(d_in)
     )
     d_out_key = protocols.get_dtype(d_out)
-    op_key = CachableFunction(op)
+    op_key = op if isinstance(op, KnownOp) else CachableFunction(op)
     h_init_key = h_init.dtype
     return (d_in_key, d_out_key, op_key, h_init_key)
 
@@ -111,7 +116,7 @@ def make_cache_key(
 def make_reduce_into(
     d_in: DeviceArrayLike | IteratorBase,
     d_out: DeviceArrayLike,
-    op: Callable,
+    op: Callable | KnownOp,
     h_init: np.ndarray,
 ):
     """Computes a device-wide reduction using the specified binary ``op`` and initial value ``init``.

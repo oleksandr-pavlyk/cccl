@@ -40,6 +40,7 @@ from ._bindings import (
     TypeEnum,
     TypeInfo,
     Value,
+    is_OpKind,
     make_pointer_object,
 )
 from ._utils.protocols import get_data_pointer, get_dtype, is_contiguous
@@ -251,7 +252,67 @@ def _create_void_ptr_wrapper(op, sig):
     return wrapper_func, void_sig
 
 
-def to_cccl_op(op: Callable, sig: Signature) -> Op:
+def _callable_to_cccl_op_impl(
+    op: Callable, sig: Signature, op_type: IntEnumerationMember
+) -> Op:
+    wrapped_op, wrapper_sig = _create_void_ptr_wrapper(op, sig)
+    ltoir, _ = cuda.compile(wrapped_op, sig=wrapper_sig, output="ltoir")
+    return Op(
+        operator_type=op_type,
+        name=wrapped_op.__name__,
+        ltoir=ltoir,
+        state_alignment=1,
+        state=None,
+    )
+
+
+class CodeAndSignature:
+    def __init__(self, fn: Callable, sig: Signature):
+        self._func = fn
+        self._sig = sig
+
+    @property
+    def function(self):
+        return self._func
+
+    @property
+    def signature(self):
+        return self._sig
+
+
+class KnownOp:
+    def __init__(self, /, impl: CodeAndSignature | None = None, *, op_type=None):
+        if op_type is None:
+            if impl is None:
+                raise ValueError("Implementation function is required")
+            if not isinstance(impl, CodeAndSignature):
+                raise TypeError
+        else:
+            if not is_OpKind(op_type):
+                raise TypeError(
+                    "op_type is expected to be either None or have type IntEnumerationMember, "
+                    f"got type {type(op_type)}"
+                )
+            if impl is None:
+                if op_type in [OpKind.STATELESS, OpKind.STATEFUL]:
+                    raise ValueError("Implementation function is required")
+            else:
+                if not isinstance(impl, CodeAndSignature):
+                    raise TypeError
+
+        self._impl = impl
+        self._op_type = op_type
+
+    def to_cccl_op(self, sig=None):
+        if self._impl is None:
+            return Op(operator_type=self._op_type)
+        op_type = OpKind.STATELESS if self._op_type is None else self._op_type
+        if sig is None:
+            sig = self._impl.signature
+        return _callable_to_cccl_op_impl(self._impl.function, sig, op_type)
+
+
+def to_cccl_op(op: Callable | KnownOp, sig: Signature) -> Op:
     """Return an `Op` object corresponding to the given callable.
 
     Importantly, this wraps the callable in a device function that takes void* arguments
@@ -260,16 +321,9 @@ def to_cccl_op(op: Callable, sig: Signature) -> Op:
     of the arguments and return value. The two functions must have the same signature in
     order to link correctly without violating ODR.
     """
-    wrapped_op, wrapper_sig = _create_void_ptr_wrapper(op, sig)
-
-    ltoir, _ = cuda.compile(wrapped_op, sig=wrapper_sig, output="ltoir")
-    return Op(
-        operator_type=OpKind.STATELESS,
-        name=wrapped_op.__name__,
-        ltoir=ltoir,
-        state_alignment=1,
-        state=None,
-    )
+    if isinstance(op, KnownOp):
+        return op.to_cccl_op()
+    return _callable_to_cccl_op_impl(op, sig, OpKind.STATELESS)
 
 
 def get_value_type(d_in: IteratorBase | DeviceArrayLike):

@@ -11,6 +11,8 @@ import numpy as np
 import pytest
 
 import cuda.cccl.parallel.experimental as parallel
+from cuda.cccl.parallel.experimental._bindings import OpKind
+from cuda.cccl.parallel.experimental._cccl_interop import KnownOp
 
 
 def random_int(shape, dtype):
@@ -55,6 +57,24 @@ def test_device_reduce(dtype, num_items):
     h_input = random_int(num_items, dtype)
     d_input = numba.cuda.to_device(h_input)
     parallel.reduce_into(d_input, d_output, op, d_input.size, h_init)
+    h_output = d_output.copy_to_host()
+    assert h_output[0] == sum(h_input) + init_value
+
+
+@pytest.mark.parametrize("dtype,num_items", dtype_size_pairs)
+def test_device_reduce_known_ops(dtype, num_items):
+    init_value = 42
+    h_init = np.array([init_value], dtype=dtype)
+    d_output = numba.cuda.device_array(1, dtype=dtype)
+    reduce_into = parallel.make_reduce_into(
+        d_output, d_output, KnownOp(op_type=OpKind.PLUS), h_init
+    )
+
+    h_input = random_int(num_items, dtype)
+    d_input = numba.cuda.to_device(h_input)
+    temp_storage_size = reduce_into(None, d_input, d_output, d_input.size, h_init)
+    d_temp_storage = numba.cuda.device_array(temp_storage_size, dtype=np.uint8)
+    reduce_into(d_temp_storage, d_input, d_output, d_input.size, h_init)
     h_output = d_output.copy_to_host()
     assert h_output[0] == sum(h_input) + init_value
 
