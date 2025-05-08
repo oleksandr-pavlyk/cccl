@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 import functools
+from typing import Callable
 
 import cupy as cp
 
@@ -51,7 +52,7 @@ class CachableFunction:
     ignoring other attributes such as their names or docstrings.
     """
 
-    def __init__(self, func):
+    def __init__(self, func: Callable):
         self._func = func
 
         closure = func.__closure__ if func.__closure__ is not None else []
@@ -59,6 +60,7 @@ class CachableFunction:
             func.__code__.co_code,
             func.__code__.co_consts,
             tuple(cell.cell_contents for cell in closure),
+            type(self),
         )
 
     def __eq__(self, other):
