@@ -535,14 +535,12 @@ C2H_TEST("SegmentedReduce works with large num_segments", "[segmented_reduce]")
 
   static constexpr IndexT n_segments_base          = (IndexT(1) << 15) + (IndexT(1) << 3);
   static constexpr IndexT n_segments_under_int_max = n_segments_base << 10;
+  static_assert(n_segments_under_int_max < INT_MAX);
 
-#ifdef SUPPORTS_HOST_INCREMENT
   static constexpr IndexT n_segments_over_int_max = n_segments_base << 16;
+  static_assert(n_segments_over_int_max > INT_MAX);
 
   const IndexT n_segments = GENERATE(n_segments_under_int_max, n_segments_over_int_max);
-#else
-  const IndexT n_segments = GENERATE(n_segments_under_int_max, n_segments_under_int_max * 8);
-#endif
 
   // first define constant iterator:
   //   iterators.ConstantIterator(np.int8(1))
