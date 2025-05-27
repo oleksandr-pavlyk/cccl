@@ -1173,7 +1173,6 @@ extern "C" __device__ void {0}({1} *transform_it_state, unsigned long long offse
     /* 3 */ base_it_advance_fn.def_src);
 
   static constexpr std::string_view transform_it_dereference_fn_src_tmpl = R"XXX(
->>>>>>> upstream/main
 {5}
 {6}
 extern "C" __device__ {2} {0}({1} *transform_it_state) {{
