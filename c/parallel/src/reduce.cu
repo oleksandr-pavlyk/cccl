@@ -212,15 +212,15 @@ struct __align__({1}) storage_t {{
       op_src, // 4
       jit_template_header_contents); // 5
 
-    const auto offset_t           = cccl_type_enum_to_name(cccl_type_enum::CCCL_UINT64);
-    nlohmann::json runtime_policy = get_policy(
-      std::format("cub::detail::reduce::MakeReducePolicyWrapper(cub::detail::reduce::policy_hub<{}, {}, "
-                  "{}>::MaxPolicy::ActivePolicy{{}})",
-                  accum_cpp,
-                  offset_t,
-                  op_name),
-      "#include <cub/device/dispatch/tuning/tuning_reduce.cuh>\n" + src,
-      ptx_args);
+    const auto offset_t            = cccl_type_enum_to_name(cccl_type_enum::CCCL_UINT64);
+    const auto policy_wrapper_expr = std::format(
+      "cub::detail::reduce::MakeReducePolicyWrapper(cub::detail::reduce::policy_hub<{}, {}, "
+      "{}>::MaxPolicy::ActivePolicy{{}})",
+      accum_cpp,
+      offset_t,
+      op_name);
+    nlohmann::json runtime_policy =
+      get_policy(policy_wrapper_expr, "#include <cub/device/dispatch/tuning/tuning_reduce.cuh>\n" + src, ptx_args);
 
     using cub::detail::RuntimeReduceAgentPolicy;
     auto [reduce_policy, reduce_policy_str] = RuntimeReduceAgentPolicy::from_json(runtime_policy, "ReducePolicy");
