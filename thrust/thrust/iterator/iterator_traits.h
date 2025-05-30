@@ -39,6 +39,7 @@
 #  pragma system_header
 #endif // no system header
 
+#include <thrust/iterator/detail/any_system_tag.h>
 #include <thrust/iterator/detail/device_system_tag.h>
 #include <thrust/iterator/detail/iterator_category_to_system.h>
 #include <thrust/iterator/detail/iterator_category_to_traversal.h>
@@ -213,6 +214,13 @@ struct iterator_traversal<::cuda::counting_iterator<Start>>
 {
   using type = random_access_traversal_tag;
 };
+
+template <class Iter, class Stride>
+struct iterator_system<::cuda::strided_iterator<Iter, Stride>> : iterator_system<Iter>
+{};
+template <class Iter, class Stride>
+struct iterator_traversal<::cuda::strided_iterator<Iter, Stride>> : iterator_traversal<Iter>
+{};
 
 template <class Iter, class Fn>
 struct iterator_system<::cuda::transform_iterator<Iter, Fn>> : iterator_system<Iter>
