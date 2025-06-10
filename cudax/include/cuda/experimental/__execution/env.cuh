@@ -95,23 +95,18 @@ private:
   using __resource   = any_async_resource<_Properties...>;
   using __stream_ref = stream_ref;
 
-  __resource __mr_                      = device_memory_resource{};
-  __stream_ref __stream_                = __detail::__invalid_stream;
-  execution::execution_policy __policy_ = execution::execution_policy::invalid_execution_policy;
+  __resource __mr_;
+  __stream_ref __stream_                    = __detail::__invalid_stream;
+  execution::any_execution_policy __policy_ = {};
 
 public:
-  //! @brief Default constructs an environment using ``device_memory_resource`` as the resource the default stream
-  //! ``execution_policy::invalid_execution_policy`` as the execution policy
-  _CCCL_HIDE_FROM_ABI env_t() = default;
-
   //! @brief Construct an env_t from an any_resource, a stream and a policy
   //! @param __mr The any_resource passed in
   //! @param __stream The stream_ref passed in
   //! @param __policy The execution_policy passed in
-  _CCCL_HIDE_FROM_ABI
-  env_t(__resource __mr,
-        __stream_ref __stream                = __detail::__invalid_stream,
-        execution::execution_policy __policy = execution::execution_policy::invalid_execution_policy) noexcept
+  _CCCL_HIDE_FROM_ABI env_t(__resource __mr,
+                            __stream_ref __stream                    = __detail::__invalid_stream,
+                            execution::any_execution_policy __policy = {}) noexcept
       : __mr_(_CUDA_VSTD::move(__mr))
       , __stream_(__stream)
       , __policy_(__policy)
@@ -145,7 +140,8 @@ public:
     return __stream_;
   }
 
-  [[nodiscard]] _CCCL_HIDE_FROM_ABI execution::execution_policy query(execution::get_execution_policy_t) const noexcept
+  [[nodiscard]] _CCCL_HIDE_FROM_ABI execution::any_execution_policy
+  query(execution::get_execution_policy_t) const noexcept
   {
     return __policy_;
   }
