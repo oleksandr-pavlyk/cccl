@@ -353,8 +353,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../libcudacxx/api/group__iterators_1ga83ac1a6f53e106d83b8f7db6757f7334.html">zip_iterator::difference_type</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../libcudacxx/api/group__iterators_1gadcd3d726e080dfd5ec73d1816aa41744.html">zip_iterator::iterator_concept</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../libcudacxx/api/group__iterators_1ga3a57fccd85438fe6ac517f59802807b5.html">zip_iterator::pointer</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../libcudacxx/api/group__iterators_1ga843f5392a85c60af68ceedbd62d71d7f.html">zip_iterator::reference</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../libcudacxx/api/group__iterators_1ga64c3e03435ec5e5dc3b9eaad6349c1c2.html">zip_iterator::value_type</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../libcudacxx/api/group__iterators_1ga3d65c0bac93cd905b59b6b7cb0c04f08.html">zip_iterator::reference</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../libcudacxx/api/group__iterators_1gaebe2d9c8478b11e187372e211ab26711.html">zip_iterator::value_type</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../libcudacxx/api/group__iterators.html">Iterators</a></li>
 </ul>
 </details></li>
@@ -1474,13 +1474,16 @@
 <li class="toctree-l2"><a class="reference internal" href="../cccl/license.html">License</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="setup.html">Setup and Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="compute.html"><code class="docutils literal notranslate"><span class="pre">cuda.compute</span></code>: Parallel Computing Primitives</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">cuda.coop</span></code>: Cooperative Algorithms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="resources.html">Resources</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="api_reference.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="compute_api.html"><code class="docutils literal notranslate"><span class="pre">cuda.compute</span></code> API Reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="coop_api.html"><code class="docutils literal notranslate"><span class="pre">cuda.coop</span></code> API Reference</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">CCCL Python Libraries</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="setup.html">Setup and Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compute.html"><code class="docutils literal notranslate"><span class="pre">cuda.compute</span></code>: Parallel Computing Primitives</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">cuda.coop</span></code>: Cooperative Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resources.html">Resources</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api_reference.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compute_api.html"><code class="docutils literal notranslate"><span class="pre">cuda.compute</span></code> API Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="coop_api.html"><code class="docutils literal notranslate"><span class="pre">cuda.coop</span></code> API Reference</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 </ul>
@@ -1518,7 +1521,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="index.html" class="nav-link">&lt;no title&gt;</a></li>
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">CCCL Python Libraries</a></li>
     
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda.coop</span></code>: Cooperative Algorithms</span></li>
   </ul>
@@ -1544,10 +1547,46 @@ at the level of blocks and warps. It is designed to be used within
 <a class="reference external" href="https://numba.readthedocs.io/en/stable/cuda/kernels.html">Numba CUDA kernels</a>.</p>
 <p>Here’s an example showing how to use the <code class="docutils literal notranslate"><span class="pre">cuda.coop</span></code> library to
 perform block-level reduction within a Numba CUDA kernel.</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Block-level reduction example. <a class="reference external" href="https://github.com/NVIDIA/cccl/blob/main/python/cuda_cccl/tests/coop/examples/block/reduce.py">View complete source on GitHub</a></span><a class="headerlink" href="#id1" title="Link to this code">#</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">custom_reduce_example</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Demonstrate block reduction with custom operator (maximum).&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">max_op</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">a</span> <span class="k">if</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="n">b</span> <span class="k">else</span> <span class="n">b</span>
+
+    <span class="n">threads_per_block</span> <span class="o">=</span> <span class="mi">128</span>
+    <span class="n">block_reduce</span> <span class="o">=</span> <span class="n">coop</span><span class="o">.</span><span class="n">block</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">numba</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">threads_per_block</span><span class="p">,</span> <span class="n">max_op</span><span class="p">)</span>
+
+    <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">link</span><span class="o">=</span><span class="n">block_reduce</span><span class="o">.</span><span class="n">files</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">kernel</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+        <span class="c1"># Each thread contributes one element</span>
+        <span class="n">block_output</span> <span class="o">=</span> <span class="n">block_reduce</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="n">cuda</span><span class="o">.</span><span class="n">threadIdx</span><span class="o">.</span><span class="n">x</span><span class="p">])</span>
+
+        <span class="c1"># Only thread 0 writes the result</span>
+        <span class="k">if</span> <span class="n">cuda</span><span class="o">.</span><span class="n">threadIdx</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">block_output</span>
+
+    <span class="c1"># Create test data</span>
+    <span class="n">h_input</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">threads_per_block</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">d_input</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">to_device</span><span class="p">(</span><span class="n">h_input</span><span class="p">)</span>
+    <span class="n">d_output</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">device_array</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+    <span class="c1"># Launch kernel</span>
+    <span class="n">kernel</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">threads_per_block</span><span class="p">](</span><span class="n">d_input</span><span class="p">,</span> <span class="n">d_output</span><span class="p">)</span>
+    <span class="n">h_output</span> <span class="o">=</span> <span class="n">d_output</span><span class="o">.</span><span class="n">copy_to_host</span><span class="p">()</span>
+    <span class="n">h_expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">h_input</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">h_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">h_expected</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Block max reduction: </span><span class="si">{</span><span class="n">h_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> (expected: </span><span class="si">{</span><span class="n">h_expected</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">h_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
 <section id="example-collections">
 <h2>Example Collections<a class="headerlink" href="#example-collections" title="Link to this heading">#</a></h2>
 <p>For complete runnable examples and more advanced usage patterns, see our
-full collection of <a class="reference external" href="https://github.com/NVIDIA/CCCL/tree/main/python/cuda_cccl/tests/cooperative/examples">examples</a>.</p>
+full collection of <a class="reference external" href="https://github.com/NVIDIA/CCCL/tree/main/python/cuda_cccl/tests/coop/examples">examples</a>.</p>
 </section>
 <section id="external-api-references">
 <h2>External API References<a class="headerlink" href="#external-api-references" title="Link to this heading">#</a></h2>
