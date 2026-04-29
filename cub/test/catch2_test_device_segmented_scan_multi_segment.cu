@@ -4,7 +4,6 @@
 #include "insert_nested_NVTX_range_guard.h"
 
 #include <cub/device/dispatch/dispatch_segmented_scan.cuh>
-#include <cub/iterator/cache_modified_input_iterator.cuh>
 
 #include <thrust/generate.h>
 #include <thrust/tabulate.h>
@@ -19,6 +18,8 @@
 
 #include "catch2_test_device_scan.cuh"
 #include <c2h/catch2_test_helper.h>
+
+// %PARAM% TEST_LAUNCH lid 0:1:2
 
 namespace impl
 {
